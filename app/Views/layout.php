@@ -1,5 +1,8 @@
 <?php
-$next = count($progress);
+$next = 0;
+while (isset($progress[$next])) {
+    $next++;
+}
 $current = $packs[$next] ?? null;
 $inProgress = $round && $round['phase'] !== 'won';
 $challengeName = $wordsMode ? 'Slova v řadě' : 'Správné pořadí';
@@ -10,6 +13,14 @@ $challengePage = match ($view) {
 };
 $icons = ['🦫', '🌲', '🐭', '🦇', '🦉', '🌪️', '🏔️'];
 $titles = ['map' => 'Mapa misí', 'auth' => 'Hráčský účet', 'profile' => 'Můj profil', 'team' => 'Moje parta', 'game' => 'Výprava', 'mission' => 'Příprava na misi', '404' => 'Ztracená stezka'];
+$titles += [
+    'subjects' => 'Předměty', 'course' => 'Mapa ročníku', 'course-mission' => 'Mise', 'lesson' => 'Lekce',
+    'assessment' => 'Opakování a testy', 'exercise' => 'Cvičení', 'rewards' => 'Odměny',
+    'guardian-auth' => 'Pro rodiče', 'guardian' => 'Rodičovská sekce', 'history' => 'Historie učení', 'admin' => 'Správa aplikace', 'forbidden' => 'Přístup odepřen',
+];
+$page ??= [];
+$style = $profile['style'] ?? [];
+$coursePage = isset($page['course']);
 ?>
 <!doctype html>
 <html lang="cs">
@@ -17,15 +28,18 @@ $titles = ['map' => 'Mapa misí', 'auth' => 'Hráčský účet', 'profile' => 'M
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($titles[$view]) ?> · Učení</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style.css?v=<?= e((int) filemtime(__DIR__ . '/../../public/style.css')) ?>">
 </head>
-<body>
+<body class="<?= isset($style['theme']) ? e('theme-' . $style['theme']) : '' ?>">
 <header class="top">
     <div class="top-inner">
-        <a class="brand" href="<?= e($url('/')) ?>"><span class="logo" aria-hidden="true">U</span><span>učení<span class="brand-dot">.</span></span></a>
+        <a class="brand" href="/predmety"><span class="logo" aria-hidden="true">U</span><span>učení<span class="brand-dot">.</span></span></a>
         <nav aria-label="Hlavní navigace">
-            <a href="<?= e($url('/')) ?>" <?= $view === 'map' ? 'aria-current="page"' : '' ?>>Mapa</a>
+            <a href="/predmety" <?= $view === 'subjects' ? 'aria-current="page"' : '' ?>>Předměty</a>
+            <a href="<?= e($coursePage ? $page['course']['url'] : $url('/')) ?>" <?= in_array($view, ['map', 'course'], true) ? 'aria-current="page"' : '' ?>>Mapa</a>
             <a href="<?= e($url('/parta')) ?>" <?= $view === 'team' ? 'aria-current="page"' : '' ?>>Parta</a>
+            <?php if ($player): ?><a href="/odmeny" <?= $view === 'rewards' ? 'aria-current="page"' : '' ?>>Odměny</a><?php endif ?>
+            <?php if (!empty($_SESSION['guardian'])): ?><a href="/rodic">Rodič</a><?php endif ?>
             <a class="nav-account" href="<?= e($url($player ? '/profil' : '/prihlaseni')) ?>"><?= $player ? 'Profil' : 'Přihlásit se' ?></a>
         </nav>
     </div>
@@ -38,8 +52,17 @@ $titles = ['map' => 'Mapa misí', 'auth' => 'Hráčský účet', 'profile' => 'M
             <a href="<?= e($challengePage . '?vyzva=slova') ?>" <?= $wordsMode ? 'aria-current="page"' : '' ?>><span aria-hidden="true">✦</span> Slova v řadě</a>
         </nav>
     <?php endif ?>
-    <?php require __DIR__ . '/' . $view . '.php'; ?>
+    <?php
+    if ($page) {
+        (static function (string $view, array $page): void {
+            extract($page, EXTR_SKIP);
+            require __DIR__ . '/' . $view . '.php';
+        })($view, $page);
+    } else {
+        require __DIR__ . '/' . $view . '.php';
+    }
+    ?>
 </main>
-<footer class="shell footer"><span>UČENÍ<span class="brand-dot">.</span></span> <span>Čeština · Vyjmenovaná slova</span></footer>
+<footer class="shell footer"><span>UČENÍ<span class="brand-dot">.</span></span> <a href="/rodic">Pro rodiče</a></footer>
 </body>
 </html>

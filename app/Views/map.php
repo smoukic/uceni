@@ -12,12 +12,12 @@
 </section>
 <section class="stats" aria-label="Tvůj postup">
     <div><span class="stat-icon gold" aria-hidden="true">ϟ</span><div><strong><?= e(array_sum($progress)) ?> XP</strong><small>Celkové skóre</small></div></div>
-    <div><span class="stat-icon green" aria-hidden="true">✓</span><div><strong><?= e($next) ?> / <?= count($packs) ?></strong><small>Splněné mise</small></div></div>
+    <div><span class="stat-icon green" aria-hidden="true">✓</span><div><strong><?= count($progress) ?> / <?= count($packs) ?></strong><small>Splněné mise</small></div></div>
     <div><span class="stat-icon blue" aria-hidden="true">✦</span><div><strong><?= $current ? 'Po ' . e($current['letter']) : 'Hotovo!' ?></strong><small><?= $current ? 'Další výzva' : 'Mapa prozkoumána' ?></small></div></div>
 </section>
 <section class="map" aria-labelledby="map-title">
-    <div class="section-title"><h2 id="map-title">Mapa misí</h2><span><?= e($next) ?> ze <?= count($packs) ?> hotovo</span></div>
-    <progress value="<?= e($next) ?>" max="<?= count($packs) ?>" aria-label="Dokončené mise"></progress>
+    <div class="section-title"><h2 id="map-title">Mapa misí</h2><span><?= count($progress) ?> ze <?= count($packs) ?> hotovo</span></div>
+    <progress value="<?= count($progress) ?>" max="<?= count($packs) ?>" aria-label="Dokončené mise"></progress>
     <ol class="missions">
         <?php foreach ($packs as $i => $pack): ?>
             <?php $done = isset($progress[$i]); $locked = $i > $next; ?>

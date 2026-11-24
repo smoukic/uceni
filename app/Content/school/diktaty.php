@@ -1,0 +1,21 @@
+<?php
+return [
+ 1 => ['Krátké věty','Napiš první písmeno velké a na konci věty tečku.',
+    'Ema má míč.|Máma čte.|Táta vaří.|Pes spí.|Tom má kolo.|Kočka pije.'],
+ 2 => ['Měkké a tvrdé slabiky','Poslouchej délku samohlásek. Rozliš i po měkké a y po tvrdé souhlásce. U ď, ť a ň zapsaných před ě už nepřidávej háček.',
+    'Děti čtou.|Dům je tichý.|Tělo je silné.|Na střeše leží sníh.|Šípek roste u cesty.|Rybník je čistý.'],
+ 3 => ['Vyjmenovaná a příbuzná slova','U obojetných souhlásek rozhoduje význam. Příbuzná slova zachovávají y nebo ý, například mlýn a mlýnský.',
+    'Babička bydlí blízko lesa.|Na horách jsme lyžovali.|Děti si umyly ruce.|Sousedův syn hraje na housle.|Venku se ozýval výr.|Zmije se schovala pod kámen.'],
+ 4 => ['Koncovky podstatných jmen','Ptej se na pád a porovnej koncovku se vzorem. Všímej si, kdy se v souvětí píše čárka.',
+    'Pod vysokými stromy rostly houby.|Na břehu seděli rybáři.|Děti běžely ke škole.|V parku si hráli psi.|Nad poli létali ptáci.|U řeky jsme pozorovali vážky.'],
+ 5 => ['Shoda a skupiny s ě','Podmět určuje koncovku příčestí. Piš -i u životného mužského, -y u ženského nebo neživotného mužského a -a u středního rodu.',
+    'Děti zapomněly na úkol.|Koťata spala na dece.|Auta projela kolem školy.|Nad loukou kroužili čápi.|Dívky objely celé hřiště.|Mláďata se schovala do trávy.'],
+ 6 => ['Souvětí a základní větné členy','Najdi určitá slovesa a hranice vět. Na začátku a konci předělu si všímej čárek. Před spojovacím a v prostém slučování čárka obvykle není.',
+    'Vím, že zítra přijdeš.|Děti našly klíč a otevřely branku.|Když pršelo, zůstali jsme doma.|Kočky běžely, protože zahlédly psa.|Jana řekla, že knihu vrátí včas.|Až dopíšeš úkol, pomůžeš mi.'],
+ 7 => ['Vlastní jména a čárky','Názvy osob a míst mají velké začátky. Obecná označení mimo název bývají malá. Vedlejší větu odděluj od hlavní čárkou.',
+    'V sobotu jsme navštívili Karlův most.|Na jaře pojedeme do Krkonoš.|Obchod v Nerudově ulici zavřel.|Vím, že se v Praze sejdeme.|Když zmizela mlha, uviděli jsme Sněžku.|Jana poslala pozdrav z Českého Krumlova.'],
+ 8 => ['Vložené věty a poměry','Vloženou vedlejší větu odděl na obou koncích. Mezi odporovacími větami před ale je čárka. V důsledkovém spojení před proto bývá čárka.',
+    'Dopis, který včera přišel, leží na stole.|Chtěli jsme na výlet, ale začalo pršet.|Kniha, kterou právě čtu, je napínavá.|Zmeškal jsem autobus, proto jsem šel pěšky.|Cesta, po které jsme šli, vedla k řece.|Myslela jsem, že vlak přijede včas.'],
+ 9 => ['Korektura delšího souvětí','Každá věta má vlastní přísudek. Nejprve si vyznač hranice vět a potom zkontroluj shodu, vlastní jména a znaménka.',
+    'Přestože pršelo, vyrazili jsme do lesa, který začíná za vesnicí.|Když jsme dorazili do Brna, zjistili jsme, že muzeum je zavřené.|Přečetla jsem zprávu, kterou jsi poslal, a zkontrolovala její zdroj.|Věřím, že nám pomůžeš, až dokončíš svůj úkol.|Děti, které doběhly včas, dostaly lístky na představení.|Jestliže se počasí zlepší, půjdeme tam, kam jsme chtěli včera.'],
+];

@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+require __DIR__ . '/../app/Learning/LearningStore.php';
+require __DIR__ . '/../app/Learning/Accounts.php';
+require __DIR__ . '/../app/Learning/Curriculum.php';
+require __DIR__ . '/../app/Learning/LearningWeb.php';
 require __DIR__ . '/../app/Models/Store.php';
 require __DIR__ . '/../app/Models/Round.php';
 require __DIR__ . '/../app/Controllers/Web.php';
@@ -13,7 +17,7 @@ ini_set('session.use_strict_mode', '1');
 session_set_cookie_params(['path' => '/', 'httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
 session_name('UCENI_SESSION_V2');
 session_start();
-$_SESSION['csrf'] ??= bin2hex(random_bytes(32));
+
 
 function e(string|int $value): string
 {
@@ -26,4 +30,8 @@ function csrf(): void
 }
 
 $packs = json_decode(file_get_contents(__DIR__ . '/../app/words.json'), true, flags: JSON_THROW_ON_ERROR);
-(new Web(new Store(__DIR__ . '/../storage/uceni.sqlite'), $packs))->run();
+$store = new Store(__DIR__ . '/../storage/uceni.sqlite');
+$store->accounts->restore();
+$_SESSION['csrf'] ??= bin2hex(random_bytes(32));
+$learning = new LearningWeb($store->learning, $store->accounts, new Curriculum(__DIR__ . '/../app/Content'));
+(new Web($store, $packs, $learning))->run();

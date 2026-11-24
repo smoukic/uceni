@@ -1,0 +1,370 @@
+<?php
+// Keep existing lesson IDs and question keys stable when extending the course.
+$c = static fn($prompt, $answer, $options, $why, $context = '', $type = 'choice') =>
+    [$type, $prompt, $answer, $options, $why, $context];
+$t = static fn($type, $prompt, $answer, $why) => [$type, $prompt, $answer, [], $why, ''];
+$o = static fn($answer, $tiles, $why) => ['order', 'Slož anglickou větu.', $answer, explode('|', $tiles), $why, ''];
+$m = static fn($pairs, $why) => ['match', 'Přiřaď dvojice.', $pairs, array_keys($pairs), $why, ''];
+$l = static fn($prompt, $answer, $options, $why, $text) => $c($prompt, $answer, $options, $why, $text, 'listen');
+$r = static fn($prompt, $answer, $options, $why, $text) => $c($prompt, $answer, $options, $why, $text, 'read');
+$lessons = [
+'be' => ['To be a představování', 'Opakování', 'I používá am, he/she/it používá is a you/we/they používá are. V otázce dej sloveso před podmět. V záporu přidej not.', ['I am twelve. → Je mi dvanáct.', 'Are you new here? — Yes, I am.'], [
+    $c('Mia ___ in class 6B.', 'is', ['am','is','are'], 'Mia je jedna osoba a můžeš ji nahradit she. She používá is.'),
+    $t('fill', 'I ___ not from London.', 'am', 'S I používáme am i v záporu: I am not.'),
+    $o('Are you in my class?', 'my|you|class|Are|in', 'Otázka se slovesem be začíná tvarem Are, pak následuje you.'),
+    $c('Is Ben your cousin? — No, ___.', "he isn't", ["he isn't","he doesn't","he aren't"], 'Otázka začíná Is, proto v odpovědi použij he is nebo he isn’t.'),
+    $t('correct', 'Oprav: We is at school.', ["We are at school","We're at school"], 'Podmět we potřebuje are.'),
+    $t('translate', 'Přelož: Jsem připravený / připravená.', ['I am ready',"I'm ready"], 'I am znamená „já jsem“ a ready znamená „připravený“.'),
+    $l('Jak se dívka jmenuje?', 'Ruby', ['Lucy','Ruby','Amy'], 'Dívka říká My name is Ruby, tedy „Jmenuji se Ruby“.', "Hi, I'm new here. My name is Ruby."),
+]],
+'have' => ['Have got a rodina', 'Opakování', 'Have got vyjadřuje, že něco máš. He, she a it mají has got. V otázce přesuň have nebo has před podmět a v záporu přidej not.', ['We have got a dog.', 'Has Leo got a sister? — Yes, he has.'], [
+    $c('My aunt ___ a big garden.', 'has got', ['have got','has got','is got'], 'My aunt je she, proto použij has got.'),
+    $o('Have they got a brother?', 'a|they|brother|got|Have', 'Otázku začíná Have, protože podmětem je they.'),
+    $t('fill', 'Has she got a cat? — No, she ___.', ["hasn't","has not"], 'Krátká záporná odpověď používá hasn’t bez got.'),
+    $t('correct', 'Oprav: Tom have got two cousins.', ["Tom has got two cousins","Tom's got two cousins"], 'Tom je he, proto potřebuje has got.'),
+    $m(['aunt'=>'teta','uncle'=>'strýc','cousin'=>'bratranec nebo sestřenice','parents'=>'rodiče'], 'Aunt a uncle jsou sourozenci rodičů, cousin je jejich dítě.'),
+    $t('translate', 'Přelož: Nemáme psa. Použij have got.', ["We haven't got a dog","We have not got a dog"], 'Zápor od we have got je we haven’t got.'),
+    $c('Které slovo označuje sourozence?', 'sister', ['mother','sister','aunt'], 'Sister je sestra, tedy jeden ze sourozenců.'),
+]],
+'pronouns' => ['Zájmena a přivlastňování', 'Opakování', 'I, he, she jsou podměty. Me, him, her použij třeba po slovese. My, his a her stojí před věcí, která někomu patří. Vlastníka lze vyjádřit i pomocí ’s.', ['She helps him. → Ona mu pomáhá.', "This is Emma’s bag. → Tohle je Emmin batoh."], [
+    $c('This is Dan. ___ bag is green.', 'His', ['He','Him','His'], 'Před bag potřebujeme přivlastňovací his, které znamená „jeho“.'),
+    $c('I can see Ava. I can see ___.', 'her', ['she','her','hers'], 'Po see je Ava předmětem, proto použij her.'),
+    $t('fill', 'We are in class 6A. This is ___ classroom.', 'our', 'K we patří přivlastňovací our, tedy „naše“.'),
+    $c('Vyber správný překlad: Liina kniha.', "Lia's book", ['Lias book',"Lia's book","Lia is book"], 'Apostrof a s za jménem Lia vyjadřují, že jí kniha patří.'),
+    $m(['I'=>'my','you'=>'your','we'=>'our','they'=>'their'], 'My, your, our a their stojí před podstatným jménem a vyjadřují, komu něco patří.'),
+    $t('correct', 'Oprav: Can you help she?', 'Can you help her?', 'Zájmeno po help je předmětové. Pro she je to her.'),
+    $c('___ is my pencil here. Those are your pens over there.', 'This', ['These','Those','This'], 'Pencil je jedna věc blízko, proto this.'),
+]],
+'modals' => ['Can, must a pravidla', 'Základ', 'Can vyjadřuje schopnost nebo možnost, must povinnost. Po obou následuje základní tvar slovesa. Mustn’t označuje zákaz. Don’t have to znamená, že něco dělat nemusíš.', ['Can you swim? — Yes, I can.', 'You mustn’t run in the corridor.'], [
+    $c('You ___ bring your PE kit. It is a school rule.', 'must', ['can','must','mustn’t'], 'Je to povinnost, proto must. Mustn’t by znamenalo zákaz.'),
+    $t('fill', 'Can Jo ride a bike? — Yes, she ___.', 'can', 'V krátké odpovědi zopakuj can, které je v otázce.'),
+    $t('correct', 'Oprav: Max can plays tennis.', 'Max can play tennis', 'Po can je základní tvar play i u he nebo she.'),
+    $o('Can I borrow your pencil?', 'your|borrow|Can|pencil|I', 'Zdvořilá otázka začíná Can I, pak následuje borrow.'),
+    $c('It is optional. You ___ come early.', "don't have to", ["must","mustn't","don't have to"], 'Optional znamená nepovinné. Don’t have to znamená „nemusíš“.'),
+    $l('Co nesmíš dělat v knihovně?', 'Jíst', ['Číst','Jíst','Sedět'], 'Věta You mustn’t eat here zakazuje jídlo.', "Please come in. You can read here, but you mustn't eat here."),
+    $t('translate', 'Přelož: Umím plavat.', 'I can swim', 'České „umím“ vyjádři can a slovesem swim bez to.'),
+]],
+'simple' => ['Present Simple a denní režim', 'Základ', 'Přítomný čas prostý popisuje zvyky a fakta. Po he, she, it přidej obvykle -s, po go nebo watch přidej -es. Příslovce usually často stojí před významovým slovesem.', ['I walk to school every day.', 'Nina usually watches TV after dinner.'], [
+    $c('Owen ___ his bike to school every day.', 'rides', ['ride','rides','is ride'], 'Every day označuje zvyk. Owen je he, proto rides.'),
+    $t('fill', 'My gran ___ (go) to the market on Saturdays.', 'goes', 'My gran je she a go má u she tvar goes.'),
+    $t('correct', 'Oprav: She play chess on Fridays.', 'She plays chess on Fridays', 'On Fridays znamená opakování. U she přidej k play -s.'),
+    $o('I usually walk to school.', 'to|walk|I|school|usually', 'Usually patří v této větě před významové sloveso walk.'),
+    $m(['get up'=>'vstávat','have breakfast'=>'snídat','do homework'=>'dělat domácí úkoly','go to bed'=>'jít spát'], 'Have breakfast je snídat, zatímco get up je vstát z postele.'),
+    $t('translate', 'Přelož: Každý den čtu. Začni „I“.', 'I read every day', 'Zvyk vyjádři I read a četnost přidej pomocí every day.'),
+    $c('Které slovo znamená „nikdy“?', 'never', ['usually','sometimes','never'], 'Never je nikdy, sometimes je někdy a usually je obvykle.'),
+]],
+'questions' => ['Do, does a krátké odpovědi', 'Základ', 'V otázce dej do nebo does před podmět. Does a doesn’t patří k he, she, it. Po do, does, don’t a doesn’t nech sloveso v základním tvaru.', ['Does Eli play football? — No, he doesn’t.', 'What do you read?'], [
+    $c('___ your sister play volleyball?', 'Does', ['Do','Does','Is'], 'Your sister je she. V otázce ke zvyku potřebuješ does.'),
+    $t('fill', 'I ___ like this song. (zápor)', ["don't","do not"], 'S I tvoříme zápor pomocí do not, zkráceně don’t.'),
+    $t('correct', 'Oprav: Does she likes music?', 'Does she like music?', 'Does už vyjadřuje třetí osobu. Like zůstane bez -s.'),
+    $o('Where do you play basketball?', 'do|you|Where|basketball|play', 'Po Where následuje do, potom podmět you a sloveso play.'),
+    $c('Do they live here? — Yes, ___.', 'they do', ['they live','they are','they do'], 'V krátké odpovědi zopakuj do z otázky.'),
+    $t('translate', 'Přelož: Max nemá rád mrkev.', ["Max doesn't like carrots","Max does not like carrots"], 'Max je he, proto použij doesn’t a potom základní like.'),
+    $l('Jaký sport dívka hraje?', 'Basketbal', ['Tenis','Fotbal','Basketbal'], 'Na otázku o tenisu odpovídá No, I don’t a dodává I play basketball.', "Do you play tennis? No, I don't. I play basketball."),
+]],
+'clock' => ['Číslovky, hodiny a datum', 'Opakování', 'Počty vyjadřují základní číslovky (three), pořadí a datum řadové (third). Past znamená po celé hodině a to do následující hodiny.', ['7:15 → a quarter past seven.', '3 May → the third of May.'], [
+    $c('Kolik je half past six?', '6:30', ['5:30','6:15','6:30'], 'Half past six je půl hodiny po šesté. Na rozdíl od češtiny se vychází z předchozí hodiny.'),
+    $t('fill', '21st → twenty-___', 'first', 'U 21st je řadová poslední část first.'),
+    $c('8:45 → ___', 'a quarter to nine', ['a quarter past eight','a quarter to nine','half past eight'], '8:45 je čtvrt hodiny do devíti, proto to nine.'),
+    $m(['thirteen'=>'13','thirty'=>'30','forty'=>'40','fourteen'=>'14'], 'Koncovka -teen je typická pro 13 až 19. -ty označuje celé desítky.'),
+    $o('My birthday is on the fifth of June.', 'birthday|fifth|My|on|of|is|the|June', 'Datum lze říct the fifth of June. Před datem je on.'),
+    $l('V kolik začíná trénink?', '4:15', ['4:15','4:45','5:15'], 'A quarter past four znamená čtvrt hodiny po čtvrté.', 'Football practice starts at a quarter past four.'),
+    $t('translate', 'Přelož: Je sedm hodin.', ["It is seven o'clock","It's seven o'clock"], 'Čas vyjádři pomocí It is a o’clock označí celou hodinu.'),
+]],
+'time' => ['In, on, at a týdenní plán', 'Základ', 'At použij pro přesný čas, on pro dny a data a in pro měsíce, roky a části dne. Ustálené spojení je at night.', ['at eight o’clock, on Monday, in July', 'We meet in the afternoon.'], [
+    $c('The lesson starts ___ ten.', 'at', ['at','on','in'], 'Přesný čas vyžaduje at.'),
+    $t('fill', 'The match is ___ Friday.', 'on', 'U konkrétního dne použij on.'),
+    $t('fill', 'My birthday is ___ September.', 'in', 'September je měsíc, proto in.'),
+    $t('correct', 'Oprav: We read on the evening.', 'We read in the evening', 'Část dne evening se používá ve spojení in the evening.'),
+    $m(['at'=>'night','on'=>'Tuesday','in'=>'August'], 'At night je ustálená výjimka. Tuesday je den a August měsíc.'),
+    $r('Kdy přijde Nora?', 'V sobotu v deset', ['V pátek v deset','V sobotu v deset','V sobotu v jedenáct'], 'Nora píše Saturday a at ten. Friday označuje starý plán.', 'Hi! I can’t come on Friday. See you on Saturday at ten. Nora'),
+    $o('We have art on Thursday.', 'have|Thursday|We|art|on', 'Po podmětu a slovese přidej předmět art a den s on.'),
+]],
+'continuous' => ['Present Continuous', 'Základ', 'Pro děj právě teď použij am/is/are + sloveso s -ing. V záporu přidej not po be. V otázce dej be před podmět.', ['They are making a poster now.', 'Is she running? — Yes, she is.'], [
+    $c('Look! The dog ___ in the garden.', 'is running', ['runs','are running','is running'], 'Look upozorňuje na děj právě teď. The dog je it, takže potřebuje is running.'),
+    $t('fill', 'I am ___ (write) a message now.', 'writing', 'Při přidání -ing k write odpadne koncové e: writing.'),
+    $t('correct', 'Oprav: We is doing a puzzle.', ["We are doing a puzzle","We're doing a puzzle"], 'We se pojí s are. Doing už má správnou koncovku.'),
+    $o('Are they playing in the park?', 'in|the|playing|Are|park|they', 'Otázku začíná Are, potom they a tvar playing.'),
+    $c('Is Eli sleeping? — No, ___.', "he isn't", ["he isn't","he doesn't","it aren't"], 'Pomocné sloveso is zůstává i v krátké odpovědi.'),
+    $t('translate', 'Přelož: Teď neposlouchám hudbu. Začni „I“.', ["I am not listening to music now","I'm not listening to music now"], 'Před listening stojí am not a anglické listen se pojí s to.'),
+    $l('Co dělá Tom?', 'Vaří', ['Vaří','Čte','Běží'], 'Tom říká I’m cooking. Reading je činnost jeho sestry.', "I'm cooking dinner. My sister is reading."),
+]],
+'contrast' => ['Zvyk, nebo právě teď?', 'Základ', 'Present Simple odpovídá na „co obvykle děláš“. Present Continuous odpovídá na „co děláš právě teď“. Slovesa jako know nebo like v běžném významu obvykle používáme v prostém čase.', ['I usually ride my bike, but today I am walking.', 'I know the answer.'], [
+    $c('Urči čas: They are waiting for the bus.', 'Present Continuous', ['Present Simple','Present Continuous','Past Simple'], 'Are waiting obsahuje are + -ing, takže vyjadřuje průběh.','','tense'),
+    $c('Urči čas: My dad works at a hospital.', 'Present Simple', ['Past Simple','Present Simple','Present Continuous'], 'Works je základní sloveso s -s, bez pomocného be a -ing.','','tense'),
+    $t('fill', 'Every Monday she walks, but today she ___ (take) the bus.', ["is taking","'s taking"], 'Today je zde kontrast k obvyklé chůzi. She is taking vyjadřuje dnešní probíhající situaci.'),
+    $c('Listen! The birds ___.', 'are singing', ['sing','are singing','sang'], 'Listen upozorňuje na zvuk právě teď, proto are singing.'),
+    $t('correct', 'Oprav: I am knowing the answer.', 'I know the answer', 'Know označuje stav, běžně tedy říkáme I know.'),
+    $r('Jak dnes jede Alex do školy?', 'Autobusem', ['Pěšky','Na kole','Autobusem'], 'Usually říká, jak jezdí obvykle. Today ale Alex jede autobusem.', 'Alex usually cycles to school. Today it is raining, so Alex is taking the bus.'),
+    $t('fill', 'On Sundays we ___ (play) board games.', 'play', 'On Sundays označuje zvyk, proto k we použij play bez are.'),
+]],
+'clothes' => ['Oblečení, počasí a popis scény', 'Základ', 'Při popisu fotky použij is/are wearing. Barvu obvykle řekni před názvem oblečení. O počasí můžeš říct It’s sunny nebo It’s raining.', ['She is wearing a blue jacket.', 'It’s windy, so I’m wearing a coat.'], [
+    $m(['scarf'=>'šála','jacket'=>'bunda','trainers'=>'tenisky','gloves'=>'rukavice'], 'Scarf patří kolem krku, gloves na ruce a trainers na nohy.'),
+    $o('He is wearing a red coat.', 'coat|red|He|wearing|a|is', 'Po is wearing stojí a red coat. Barva je před coat.'),
+    $c('It is very cold. What keeps your hands warm?', 'Gloves', ['Gloves','Shorts','A scarf'], 'Hands jsou ruce. Ty zahřejí gloves, rukavice.'),
+    $l('Co si máš vzít ven?', 'Pláštěnku', ['Čepici proti slunci','Pláštěnku','Tenisky'], 'Take your raincoat je pokyn vzít si pláštěnku.', "It's raining outside. Take your raincoat."),
+    $t('translate', 'Přelož: Má na sobě modré džíny. Začni „She“.', ["She is wearing blue jeans","She's wearing blue jeans"], 'She is wearing popisuje, co má na sobě teď. Jeans je množné číslo.'),
+    $c('Kterou větu použiješ, když fouká vítr?', "It's windy.", ["It's cloudy.","It's windy.","It's snowing."], 'Wind je vítr, proto windy znamená větrno.'),
+    $t('fill', 'They are ___ (wear) green T-shirts.', 'wearing', 'Po are potřebuješ ve větě o tom, co mají na sobě právě teď, wearing.'),
+]],
+'articles' => ['Členy a, an a the', 'Základ', 'A a an znamenají jeden blíže neurčený kus. Rozhoduje první vyslovený zvuk. The použij, když už oba víte, o které věci je řeč.', ['an apple, a bike, an hour', 'I see a dog. The dog is black.'], [
+    $c('I need ___ orange.', 'an', ['a','an','the'], 'Orange začíná samohláskovým zvukem a jde o libovolný jeden pomeranč.'),
+    $t('fill', 'There is ___ bike outside. The bike is blue.', 'a', 'Bike slyšíme poprvé a začíná souhláskovým zvukem.'),
+    $t('fill', 'I found a key. ___ key was under the sofa.', 'the', 'Ve druhé větě už víme, o kterém klíči mluvíme.'),
+    $t('correct', 'Oprav: We waited for a hour.', 'We waited for an hour', 'H ve slově hour nevyslovujeme. Začíná tedy samohláskovým zvukem.'),
+    $c('Slyšíš /j/ na začátku university. Který člen patří před slovo?', 'a', ['a','an','the'], 'Před souhláskovým zvukem /j/ patří a, i když napsané slovo začíná písmenem u.'),
+    $o('An elephant is in the picture.', 'in|An|picture|elephant|is|the', 'An je před elephant. The picture je konkrétní obrázek, na který se díváme.'),
+    $c('Please close ___ door next to you.', 'the', ['a','an','the'], 'Next to you určuje konkrétní dveře, proto the.'),
+]],
+'plural' => ['Množné číslo', 'Opakování', 'Nejčastější koncovka množného čísla je -s. Po některých hláskách přidáme -es. Po souhlásce + y měníme y na -ies. Nepravidelné tvary si zapamatuj.', ['book → books, box → boxes, city → cities', 'child → children, person → people'], [
+    $t('fill', 'one box → two ___', 'boxes', 'Po x přidáváme -es, aby se koncovka dobře vyslovila.'),
+    $c('one child → three ___', 'children', ['childs','children','childrens'], 'Children je už množné číslo. Další -s nepotřebuje.'),
+    $t('fill', 'one city → two ___', 'cities', 'Po souhlásce před y (t) měníme y na -ies.'),
+    $t('fill', 'one toy → three ___', 'toys', 'Před y je samohláska o, proto přidáváme jen -s.'),
+    $m(['foot'=>'feet','tooth'=>'teeth','person'=>'people','mouse'=>'mice'], 'Tato běžná slova mění v množném čísle svůj tvar.'),
+    $t('correct', 'Oprav: I can see two womans.', 'I can see two women', 'Množné číslo od woman je women.'),
+    $c('Který tvar patří za „two“?', 'sandwiches', ['sandwich','sandwichs','sandwiches'], 'Po -ch přidej -es: sandwiches.'),
+]],
+'there' => ['There is / there are', 'Základ', 'There is použij, když říkáš, že někde je jedna věc nebo něco nepočitatelného. There are je pro více věcí. V otázce přesuň is nebo are na začátek.', ['There is a desk in my room.', 'Are there two lamps? — Yes, there are.'], [
+    $c('There ___ three books on the shelf.', 'are', ['is','are','am'], 'Three books je množné číslo, proto there are.'),
+    $t('fill', 'There ___ a clock on the wall.', 'is', 'A clock znamená jedny hodiny, proto there is.'),
+    $o('Is there a park near here?', 'near|a|Is|here|there|park', 'Otázka na existenci jednoho parku začíná Is there.'),
+    $t('correct', 'Oprav: There are a lamp next to the bed.', ["There is a lamp next to the bed","There's a lamp next to the bed"], 'A lamp je jedna lampa, proto there is.'),
+    $c('Are there any shops here? — No, ___.', "there aren't", ["there isn't","there aren't","they don't"], 'Otázka používá are, odpověď proto používá there aren’t.'),
+    $t('translate', 'Přelož: V pokoji jsou dvě židle.', 'There are two chairs in the room', 'Dvě židle vyžadují there are a místo přidáš na konec.'),
+    $c('There ___ some milk in the fridge.', 'is', ['are','is','do'], 'Milk je nepočitatelné a v této konstrukci používáme there is.'),
+]],
+'place' => ['Kde to je? Pokoj a město', 'Základ', 'In znamená uvnitř, on na povrchu, under pod, next to vedle, between mezi dvěma věcmi a opposite naproti. Pro cestu použij go straight nebo turn left/right.', ['The ball is under the chair.', 'Go straight and turn left at the park.'], [
+    $c('The book is ___ the bag. Open the bag to get it.', 'in', ['in','behind','on'], 'Musíš tašku otevřít, proto je kniha uvnitř: in.'),
+    $t('fill', 'The shop is ___ the bank and the library. (mezi)', 'between', 'Between spojuje dvě místa, mezi kterými je obchod.'),
+    $m(['next to'=>'vedle','opposite'=>'naproti','behind'=>'za','under'=>'pod'], 'Opposite znamená naproti, next to vedle na stejné straně.'),
+    $o('The keys are on the table.', 'the|on|The|keys|table|are', 'Klíče leží na povrchu stolu, proto on the table.'),
+    $r('Kde je kino?', 'Naproti parku', ['Vedle parku','Naproti parku','Uvnitř parku'], 'Opposite the park označuje protější stranu.', 'The cinema is opposite the park. The bus stop is next to the cinema.'),
+    $l('Kam máš odbočit u školy?', 'Doprava', ['Doleva','Doprava','Nikde'], 'Turn right znamená odbočit doprava. Straight je první část cesty.', 'Go straight and turn right at the school.'),
+    $t('translate', 'Přelož: Kočka je pod postelí.', ["The cat is under the bed","The cat's under the bed"], 'Under znamená pod. V této větě mluvíme o konkrétní posteli.'),
+]],
+'count' => ['Počitatelné a nepočitatelné', 'Základ', 'Apple lze počítat po kusech, takže řekneme three apples. Water, bread nebo rice obvykle bereme jako množství. Počítat pak můžeme nádoby nebo porce.', ['two carrots, some rice', 'a bottle of water, two slices of bread'], [
+    $c('Co v tomto seznamu běžně počítáme po kusech?', 'eggs', ['rice','water','eggs'], 'Egg je jeden kus a eggs je množné číslo. Rice a water obvykle měříme.'),
+    $t('fill', 'two ___ of bread (plátky)', 'slices', 'Bread je nepočitatelné, ale jednotlivé plátky se dají spočítat: slices.'),
+    $t('correct', 'Oprav: I need an information.', ['I need some information','I need information','I need a piece of information'], 'Information je nepočitatelné a nepoužívá se s an.'),
+    $m(['carton'=>'karton','bottle'=>'lahev','slice'=>'plátek','bowl'=>'miska'], 'Počítej nádoby nebo porce místo nepočitatelné potraviny. Slice je plátek a bowl je miska.'),
+    $c('I have three ___.', 'bananas', ['milk','bananas','bread'], 'Three vyžaduje množné číslo počitatelné věci.'),
+    $o('We need a bottle of water.', 'of|need|water|a|We|bottle', 'Jeden kus je bottle. Of water říká, co je uvnitř.'),
+    $t('translate', 'Přelož: Potřebuji dvě vejce.', 'I need two eggs', 'Egg je počitatelné, proto po two použij eggs.'),
+]],
+'some' => ['Some a any', 'Základ', 'Some běžně použij v kladné větě, any v záporu nebo běžné otázce. V nabídce nebo zdvořilé žádosti se často používá some.', ['There are some pears.', 'Have you got any pears?', 'Would you like some tea?'], [
+    $c('We have got ___ bananas.', 'some', ['a','any','some'], 'Je to kladná věta s neurčitým počtem banánů, proto some.'),
+    $t('fill', 'There isn’t ___ juice left.', 'any', 'Isn’t tvoří zápor, v němž použijeme any.'),
+    $t('fill', 'Have you got ___ apples?', 'any', 'Jde o běžnou otázku, jestli jsou nějaká jablka, proto any.'),
+    $c('Would you like ___ soup?', 'some', ['some','many','a'], 'Jde o nabídku a s nepočitatelným soup se zde použije some.'),
+    $o('There are not any tomatoes left.', 'left|tomatoes|not|There|any|are', 'V záporu stojí not před any tomatoes. Left znamená zbývající.'),
+    $t('translate', 'Přelož: Máme nějaký sýr. Použij some.', ['We have some cheese','We have got some cheese',"We've got some cheese"], 'Cheese je zde nepočitatelné a v kladné větě použijeme some.'),
+    $r('Co na seznamu chybí a je potřeba koupit?', 'Mléko', ['Jablka','Chléb','Mléko'], 'We haven’t got any milk říká, že mléko došlo.', 'We have some apples and bread. We haven’t got any milk. Please buy a carton.'),
+]],
+'much' => ['Much, many a množství', 'Základ', 'How many použij s počitatelným množným číslem, how much s nepočitatelným podstatným jménem. How much také používáme v otázce na cenu.', ['How many oranges? — Four.', 'How much water? — A litre.'], [
+    $c('How ___ sandwiches do we need?', 'many', ['much','many','any'], 'Sandwiches jsou kusy, které lze spočítat. Použij how many.'),
+    $t('fill', 'How ___ rice is there?', 'much', 'Rice je nepočitatelné, proto how much.'),
+    $t('correct', 'Oprav: How much apples are there?', 'How many apples are there?', 'Apples je počitatelné množné číslo.'),
+    $c('How much is the jacket? Co zjišťuješ?', 'Cenu bundy', ['Počet bund','Barvu bundy','Cenu bundy'], 'How much is it? je běžná otázka na cenu.'),
+    $o('How many glasses do we need?', 'we|many|need|How|glasses|do', 'Po How many následují glasses, pak do we need.'),
+    $t('translate', 'Přelož: Kolik vody potřebujeme?', 'How much water do we need?', 'Vodu měříme, proto how much water. Otázku pak tvoří do we need.'),
+    $c('We’ve got ___ bread for the picnic.', 'a lot of', ['many','a lot of','a'], 'A lot of lze použít i u nepočitatelného bread.'),
+]],
+'cafe' => ['Svačina v kavárně', 'Rozšíření', 'Když objednáváš, I’d like znamená „dal/a bych si“. Can I have …, please? je zdvořilá žádost. U ceny poslouchej libry a pence.', ["I’d like a sandwich, please.", 'Can I have the menu, please?'], [
+    $c('Která věta je zdvořilá objednávka?', "I'd like a tea, please.", ['Tea now.',"I'd like a tea, please.",'I must tea.'], 'I’d like a …, please je zdvořilá fráze. A tea zde znamená jednu porci čaje.'),
+    $m(['menu'=>'jídelní lístek','bill'=>'účet','juice'=>'džus','soup'=>'polévka'], 'Menu vybíráš před objednáním, bill dostaneš po jídle.'),
+    $o('Can I have the bill please?', 'I|please|bill|Can|the|have', 'Can I have … je zdvořilá žádost, please je na konci.'),
+    $r('Co koupíš za tři libry?', 'Polévku', ['Džus','Polévku','Sendvič'], 'Na lístku má cenu £3 soup. Sandwich stojí víc a juice méně.', 'Today’s menu: soup £3, cheese sandwich £4, orange juice £2.'),
+    $l('Co si zákaznice objednala?', 'Sendvič a vodu', ['Polévku a vodu','Sendvič a čaj','Sendvič a vodu'], 'A sandwich and a glass of water jmenuje obě položky.', "I'd like a sandwich and a glass of water, please."),
+    $t('translate', 'Přelož: Dal/a bych si pomerančový džus, prosím.', ["I'd like an orange juice please","I'd like an orange juice, please","I would like an orange juice please","I would like an orange juice, please"], 'I’d like je zkrácené I would like. An orange juice zde označuje jednu porci.'),
+    $c('Obsluha se ptá „Anything else?“ Co tím myslí?', 'Ještě něco?', ['Kolik to stojí?','Ještě něco?','Je to pro vás?'], 'Anything else? se ptá, jestli chceš ještě něco k objednávce.'),
+]],
+'was' => ['Was, were a včerejšek', 'Základ', 'V minulosti mají I, he, she, it tvar was. K you, we, they patří were. Otázku začni slovesem a zápor vytvoř pomocí wasn’t nebo weren’t.', ['I was at home yesterday.', 'Were they late? — No, they weren’t.'], [
+    $c('Maya ___ at the museum yesterday.', 'was', ['is','were','was'], 'Yesterday patří do minulosti. Maya je she, proto was.'),
+    $t('fill', 'We ___ tired after the trip.', 'were', 'K we patří v minulosti were.'),
+    $o('Were you at school yesterday?', 'yesterday|at|Were|school|you', 'Minulá otázka s you začíná Were you.'),
+    $t('correct', 'Oprav: They was very busy.', 'They were very busy', 'Podmět they se pojí s were.'),
+    $c('Was it sunny? — Yes, ___.', 'it was', ['it is','it did','it was'], 'Na otázku Was it odpovídáme Yes, it was.'),
+    $t('translate', 'Přelož: Nebyl/a jsem doma. Začni „I“.', ["I wasn't at home","I was not at home","I wasn't home","I was not home"], 'Zápor od I was je I wasn’t. At home znamená doma.'),
+    $l('Kde byli včera?', 'V muzeu', ['V parku','V muzeu','Ve škole'], 'We were at the museum uvádí konkrétní místo.', 'Yesterday we were at the museum. It was great.'),
+]],
+'regular' => ['Past Simple a pravidelná slovesa', 'Základ', 'U ukončeného děje v minulosti tvoříme pravidelný tvar pomocí -ed. Po koncovém e přidáme jen -d. Po souhlásce a y obvykle změníme y na -ied. Koncovku -ed vyslovujeme podle posledního zvuku slovesa.', ['play → played, visit → visited', 'live → lived, study → studied'], [
+    $c('We ___ (visit) our gran last Sunday.', 'visited', ['visit','visits','visited'], 'Last Sunday označuje skončenou minulost. K visit přidej -ed.'),
+    $t('fill', 'I ___ (study) English yesterday.', 'studied', 'Před y je souhláska d, proto study → studied.'),
+    $t('fill', 'She ___ (live) in York in 2022.', 'lived', 'Live už končí na e, proto přidej jen d.'),
+    $t('correct', 'Oprav: We planed a trip. (plánovali jsme)', 'We planned a trip', 'U krátkého slova plan se n před -ed zdvojí.'),
+    $m(['watch'=>'watched','play'=>'played','try'=>'tried','stop'=>'stopped'], 'Try mění y na i. Stop má v minulém tvaru dvě p.'),
+    $c('Urči čas: They cleaned the kitchen yesterday.', 'Past Simple', ['Present Simple','Past Simple','Present Continuous'], 'Cleaned a yesterday odkazují na skončený minulý děj.','','tense'),
+    $l('Kde slyšíš koncovku -ed jako další slabiku /ɪd/?', 'wanted', ['played','wanted','watched'], 'Po zvuku /t/ nebo /d/ tvoří -ed další slabiku, jako ve wanted.', 'Played. Wanted. Watched.'),
+]],
+'irregular' => ['Past Simple a nepravidelná slovesa', 'Základ', 'Některá slovesa v minulosti změní tvar bez -ed. Uč se je ve dvojicích a používej v krátkých větách o tom, co se stalo.', ['go → went, see → saw, have → had', 'eat → ate, get → got, buy → bought'], [
+    $c('We ___ to the zoo last Saturday.', 'went', ['goed','went','go'], 'Go má nepravidelný minulý tvar went.'),
+    $t('fill', 'Mia ___ (see) two owls in the park.', 'saw', 'Minulý tvar slovesa see je saw.'),
+    $m(['eat'=>'ate','have'=>'had','buy'=>'bought','make'=>'made'], 'Ate, had, bought a made jsou zvláštní minulé tvary, které si ulož jako dvojice.'),
+    $t('correct', 'Oprav: I buyed a new book yesterday.', 'I bought a new book yesterday', 'Buy nedostane -ed. Správný nepravidelný tvar je bought.'),
+    $o('I got a message yesterday.', 'message|yesterday|got|I|a', 'Got je minulý tvar slovesa get. Yesterday patří v této větě na konec.'),
+    $r('Co si děti koupily?', 'Pohlednici', ['Lístek na autobus','Pohlednici','Knihu'], 'Bought je minulý tvar buy. A postcard je pohlednice.', 'We went to the zoo by bus. We saw a bear and bought a postcard.'),
+    $t('translate', 'Přelož: Včera jsem jedl/a jablko. Začni „I“.', 'I ate an apple yesterday', 'Eat má v minulosti tvar ate. Před apple použij an.'),
+]],
+'past' => ['Did, didn’t a příběh', 'Základ', 'V otázce a záporu s běžnými slovesy použij did nebo didn’t. Minulost už je v did, takže další sloveso nech v základním tvaru. Příběh propojí first, then a finally.', ['Did you see the film? — Yes, I did.', 'We didn’t go home early.'], [
+    $c('___ you visit the castle yesterday?', 'Did', ['Do','Did','Were'], 'Otázka k minulému ději visit se tvoří pomocí did.'),
+    $t('fill', 'She didn’t ___ (go) to the concert.', 'go', 'Po didn’t použij základní go.'),
+    $t('correct', 'Oprav: Did he saw the fox?', 'Did he see the fox?', 'Did už značí minulost, proto musí být see.'),
+    $o('When did you get home?', 'home|When|get|you|did', 'Po When stojí did, potom you a základní get.'),
+    $c('Did they play chess? — No, ___.', "they didn't", ["they don't","they weren't","they didn't"], 'Krátká záporná odpověď na Did používá didn’t.'),
+    $l('Co děti udělaly jako poslední?', 'Šly domů', ['Koupily mapu','Našly rybník','Šly domů'], 'Finally znamená nakonec. Následuje went home.', 'First we bought a map. Then we found a pond. Finally, we went home.'),
+    $t('translate', 'Přelož: Včera jsme nehráli tenis.', ["We didn't play tennis yesterday","We did not play tennis yesterday"], 'Po didn’t přidej play, nikoli played.'),
+]],
+'compare' => ['Stupňování přídavných jmen', 'Základ', 'Krátká přídavná jména se často stupňují pomocí -er a -est. U delších použij more nebo most. Nepravidelné good má better a best. Porovnání dvou věcí spojuje than.', ['A bike is cheaper than a car.', 'This is the most interesting book.'], [
+    $c('A train is ___ than a bike.', 'faster', ['fastest','faster','more fast'], 'Than srovnává dvě věci. Krátké fast tvoří faster.'),
+    $t('fill', 'This is the ___ (big) park in town.', 'biggest', 'The označuje výběr největšího z více parků. U big zdvoj g a přidej -est.'),
+    $c('This film is ___ interesting than that one.', 'more', ['most','more','much'], 'Interesting je dlouhé slovo. S than použij more interesting.'),
+    $t('correct', 'Oprav: Your idea is gooder than mine.', 'Your idea is better than mine', 'Druhý stupeň good je nepravidelný: better.'),
+    $m(['small'=>'smaller','easy'=>'easier','bad'=>'worse','beautiful'=>'more beautiful'], 'Easy mění y na i, bad má nepravidelné worse a beautiful používá more.'),
+    $t('translate', 'Přelož: Tohle je nejlepší den.', ["This is the best day","This is the best day ever"], 'Nejlepší je best, před ním se zde používá the.'),
+    $r('Který výlet je levnější?', 'Výlet k jezeru', ['Výlet k jezeru','Výlet na hrad','Stojí stejně'], '£5 je méně než £8. Cheaper znamená levnější.', 'The lake trip costs £5. The castle trip costs £8, but it is longer.'),
+]],
+'reading' => ['Čtení: zprávy, nápisy a plány', 'Základ', 'Nejdřív si všimni, jestli čteš zprávu, oznámení nebo plán. Potom najdi údaje jako kdy, kde, kdo a proč. Pokud nerozumíš slovu, podívej se, co říkají věty kolem něj.', ['Closed on Mondays → V pondělí zavřeno.', 'Meet outside the library → Sraz před knihovnou.'], [
+    $r('Kdy můžeš přijít do klubu?', 'Ve středu ve čtyři', ['V pondělí ve čtyři','Ve středu ve čtyři','Ve středu v pět'], 'Rozvrh uvádí Wednesday, 4–5 pm. Pondělí je zavřeno.', 'Art club: Wednesday, 4–5 pm, Room 12. Closed on Mondays.'),
+    $r('Kde se sejdou?', 'Před knihovnou', ['V knihovně','Na nádraží','Před knihovnou'], 'Outside znamená venku před knihovnou, ne uvnitř.', 'Meet outside the library at 10. Then we can walk to the station.'),
+    $r('Proč Sam mění plán?', 'Prší', ['Prší','Nemá kolo','Kino je plné'], 'It’s raining vysvětluje, proč výlet na kole odloží.', 'Hi Ava, it’s raining, so let’s go to the cinema today. We can cycle tomorrow. Sam'),
+    $r('Co znamená „hire“ na tomto nápisu?', 'Půjčit si za peníze', ['Prodat','Půjčit si za peníze','Opravit'], 'Cena za hodinu a doba vrácení ukazují, že jde o placené půjčení.', 'Bike hire: £4 for one hour. Return your bike before 5 pm.'),
+    $r('Co nápis dovoluje?', 'Sednout si na lavičku', ['Přivést psa','Sednout si na lavičku','Hrát fotbal'], 'You can sit je povolení, zatímco No dogs a No ball games jsou zákazy.', 'Quiet garden. No dogs. No ball games. You can sit on the benches.'),
+    $r('Kolik stojí dětská vstupenka?', '£2', ['£2','£3','£5'], 'Children je kategorie pro děti. £5 je cena pro dospělé.', 'Museum tickets: Adults £5. Children £2. School groups: ask at the desk.'),
+    $m(['entrance'=>'vchod','exit'=>'východ','closed'=>'zavřeno','free'=>'zdarma'], 'Entrance je místo, kde vstupuješ, exit je místo, kudy odcházíš.'),
+]],
+'listening' => ['Poslech a výslovnost', 'Základ', 'Poprvé poslouchej kvůli hlavní myšlence. Podruhé si všímej detailů, třeba času a místa. Při výslovnosti rozlišuj dlouhé a krátké samohlásky a vnímej přízvuk.', ['ship /ʃɪp/ a sheep /ʃiːp/', 'thirteen /ˌθɜːˈtiːn/ a thirty /ˈθɜːti/'], [
+    $l('Kdy odjíždí vlak?', 'V 9:30', ['V 9:13','V 9:30','V 10:30'], 'Half past nine je 9:30.', 'The train to York leaves at half past nine.'),
+    $l('Co si máš přinést?', 'Tužku a sešit', ['Tužku a sešit','Učebnici a pravítko','Sešit a nůžky'], 'Pencil a notebook jsou obě požadované věci.', 'For the art club, please bring a pencil and a notebook.'),
+    $l('Které zvíře slyšíš?', 'sheep', ['ship','sheep','shop'], 'Sheep má dlouhé /iː/ a znamená ovce. Ship má krátké /ɪ/ a znamená loď.', 'Look at the sheep.'),
+    $l('Kolik knih slyšíš?', '13', ['13','30','3'], 'Thirteen má přízvuk na -teen, zatímco thirty typicky na první slabice.', 'There are thirteen books on the shelf.'),
+    $l('Proč se mají potkat u knihovny?', 'Sportovní hala je zavřená', ['Knihovna je zavřená','Sportovní hala je zavřená','Je státní svátek'], 'Pokyn ke srazu následuje po větě The sports hall is closed today.', 'The sports hall is closed today. Please meet outside the library instead.'),
+    $l('Které číslo je v další zprávě?', '30', ['13','30','3'], 'Thirty je 30. Jeho poslední slabika je krátká.', 'There are thirty tickets for the trip.'),
+    $l('Kdy má Kim narozeniny?', '15. května', ['5. května','15. března','15. května'], 'Fifteenth označuje patnáctý den a May je květen.', 'My birthday is on the fifteenth of May.'),
+]],
+'talk' => ['Rozhovor a plány', 'Rozšíření', 'Na návrh Shall we …? můžeš reagovat Great idea nebo Sorry, I can’t a navrhnout jiný čas. Be going to se hodí k plánům. Ukázkové věty si řekni nahlas a potom obměň místo nebo čas.', ['Shall we meet after school? — Great idea!', 'I’m going to visit my cousin on Sunday.'], [
+    $c('Kamarád navrhne schůzku v sobotu. Nemůžeš. Co řekneš?', 'Sorry, I can’t. How about Sunday?', ['I must Sunday.','Sorry, I can’t. How about Sunday?','Yes, I can on Saturday.'], 'Omluva říká, že nemůžeš, a How about Sunday nabízí jiný den.'),
+    $t('fill', 'We are going ___ visit Bristol on Sunday.', 'to', 'Plán tvoří be going to a základní tvar slovesa.'),
+    $o('Shall we meet after school?', 'we|school|Shall|after|meet', 'Shall we je začátek návrhu. After school přidává čas.'),
+    $t('correct', 'Oprav: I going to play tennis tomorrow.', ["I am going to play tennis tomorrow","I'm going to play tennis tomorrow"], 'K I potřebuješ pomocné am, teprve potom going to.'),
+    $l('Který den se nakonec dohodnou?', 'V neděli', ['V pátek','V sobotu','V neděli'], 'Po odmítnutí soboty zazní návrh Sunday a souhlas That works for me.', 'Shall we meet on Saturday? Sorry, I cannot. How about Sunday? That works for me.'),
+    $c('Nerozumíš, co kamarád právě řekl. Jak ho požádáš o zopakování?', 'Could you say that again, please?', ['What are you going to do?','Could you say that again, please?','Can I help you?'], 'Say that again znamená říct to znovu. Could you …, please je zdvořilá žádost.'),
+    $t('translate', 'Přelož: Co kdybychom se sešli v parku? Použij „Shall we“.', 'Shall we meet in the park?', 'Shall we meet je návrh schůzky. In the park znamená v parku.'),
+]],
+];
+
+// Append new tasks so earlier review references retain their IDs.
+$more = [
+    'be' => [
+        $t('translate', 'Přelož „I am twelve“ do češtiny.', ['Je mi dvanáct','Je mi 12','Mně je dvanáct'], 'Věk se v angličtině vyjadřuje slovesem be. I am twelve znamená „Je mi dvanáct“.'),
+        $c('Are you from Brno? — Yes, ___.', 'I am', ['I am','I do','I have'], 'Otázka s are vyžaduje tvar be, s I tedy am.'),
+    ],
+    'have' => [
+        $t('translate', 'Přelož „My uncle has got a dog“ do češtiny.', ['Můj strýc má psa','Můj strejda má psa'], 'Uncle je strýc a has got znamená má.'),
+        $c('I ___ got any brothers.', "haven’t", ["hasn’t","haven’t","aren’t"], 'Zápor od I have got je I haven’t got.'),
+    ],
+    'pronouns' => [
+        $t('fill', 'I like these shoes. I want to buy ___.', 'them', 'These shoes je množné číslo. Jako předmět použij them.'),
+        $c('This is my book. That one is ___. (tvoje)', 'yours', ['you','your','yours'], 'Yours stojí samostatně místo your book. Your by potřebovalo jméno.'),
+    ],
+    'modals' => [
+        $t('translate', 'Přelož „You must wait here“ do češtiny.', ['Musíš tady čekat','Musíš čekat tady','Musíte zde čekat','Musíte tady čekat','Musíš tu čekat','Musíš zde čekat','Musíš zde počkat','Musíš tady počkat'], 'Must vyjadřuje povinnost, wait znamená čekat a here je tady.'),
+        $c('Sun is very young, so she ___ read yet.', "can’t", ['can',"can’t",'must'], 'Yet a very young naznačují, že Sun to ještě neumí: can’t.'),
+    ],
+    'simple' => [
+        $t('fill', 'Leo ___ (study) after school.', 'studies', 'U he přidáváme koncovku. Po souhlásce a y vznikne studies.'),
+        $t('translate', 'Přelož „I usually get up at seven“ do češtiny.', ['Obvykle vstávám v sedm','Většinou vstávám v sedm','Obvykle vstávám v sedm hodin','Většinou vstávám v sedm hodin'], 'Usually říká, jak často. Get up je vstávat a at seven je v sedm.'),
+    ],
+    'questions' => [
+        $t('fill', 'What ___ your parents do on Sundays?', 'do', 'Your parents je they, proto použij do.'),
+        $c('Which question asks about a person?', 'Who helps you?', ['When do you help?','Who helps you?','Where do you help?'], 'Who je otázka na člověka. When se ptá na čas a where na místo.'),
+    ],
+    'clock' => [
+        $t('fill', '22nd → twenty-___', 'second', 'Poslední část je řadová, two se mění na second.'),
+        $c('12 April se čte jako ___.', 'the twelfth of April', ['the twelve of April','the twelfth of April','the twentieth of April'], 'Twelfth znamená dvanáctý. Twelve je základní počet a twentieth znamená dvacátý.'),
+    ],
+    'time' => [
+        $t('fill', 'Snow sometimes falls ___ winter.', 'in', 'Pro roční období používáme in.'),
+        $c('The meeting is ___ 14 May.', 'on', ['at','on','in'], '14 May je konkrétní datum. Před datem je on.'),
+    ],
+    'continuous' => [
+        $t('fill', 'Listen! Jamie is ___ (sing).', 'singing', 'Ke slovesu sing prostě přidáme -ing.'),
+        $t('correct', 'Oprav: What are you makeing?', 'What are you making?', 'Koncové e ve slově make před -ing odpadá.'),
+    ],
+    'contrast' => [
+        $c('Urči čas: I bought a new pair of shoes.', 'Past Simple', ['Past Simple','Present Continuous','Present Simple'], 'Bought je nepravidelný minulý tvar slovesa buy.','','tense'),
+        $t('fill', 'My dog usually ___ (sleep) by the door.', 'sleeps', 'Usually označuje zvyk. My dog je it, takže potřebuješ sleeps.'),
+    ],
+    'clothes' => [
+        $t('translate', 'Přelož „It’s snowing“ do češtiny.', ['Sněží','Právě sněží','Venku sněží'], 'Snow jako sloveso znamená sněžit. Tvar is snowing označuje stav právě teď.'),
+        $m(['socks'=>'ponožky','skirt'=>'sukně','boots'=>'boty','hat'=>'klobouk'], 'Socks jsou ponožky, boots jsou vyšší nebo pevnější boty.'),
+    ],
+    'articles' => [
+        $t('fill', 'My sister is ___ artist. (Začíná samohláskovým zvukem.)', 'an', 'Artist začíná samohláskovým zvukem, proto an.'),
+        $t('fill', 'We saw a fox. ___ fox ran away.', 'the', 'Podruhé už je jasné, že jde o tu lišku, kterou jsme viděli.'),
+    ],
+    'plural' => [
+        $t('fill', 'one person → two ___', 'people', 'Person má nepravidelné množné číslo people.'),
+        $t('correct', 'Oprav: I have two watchs.', 'I have two watches', 'Po -ch přidej -es, takže watch → watches.'),
+    ],
+    'there' => [
+        $t('fill', '___ there a bus stop near here?', 'Is', 'A bus stop je jedna zastávka, proto otázka Is there.'),
+        $c('There ___ any pencils in the box.', "aren’t", ['isn’t','aren’t','don’t'], 'Pencils je množné číslo, v záporu tedy there aren’t.'),
+    ],
+    'place' => [
+        $t('translate', 'Přelož „Turn left at the bridge“ do češtiny.', ['U mostu odboč doleva','Odboč doleva u mostu','U mostu zahni doleva','Zahni doleva u mostu','U mostu odbočte doleva','Odbočte doleva u mostu','U mostu zaboč doleva','Zaboč doleva u mostu'], 'Turn left je odboč doleva a at the bridge znamená u mostu.'),
+        $c('The school and the pool face each other. The pool is ___ the school.', 'opposite', ['under','inside','opposite'], 'Face each other popisuje dvě místa naproti sobě.'),
+    ],
+    'count' => [
+        $t('fill', 'a ___ of tea (šálek)', 'cup', 'Tea nepočítáme po kusech, ale můžeme počítat šálky pomocí cup.'),
+        $c('Co se běžně NEPOČÍTÁ po kusech?', 'rice', ['beans','biscuits','rice'], 'Rice obvykle vyjadřujeme jako množství. Beans a biscuits jsou jednotlivé kusy.'),
+    ],
+    'some' => [
+        $t('fill', 'There are ___ strawberries on the table. (kladná věta)', 'some', 'Some běžně vyjadřuje neurčitý počet v kladné větě.'),
+        $c('We can’t find ___ clean glasses.', 'any', ['any','some','much'], 'Can’t vytváří zápor a glasses jsou počitatelné. Použij any.'),
+    ],
+    'much' => [
+        $t('fill', 'How ___ bananas are in the bowl?', 'many', 'Banány lze spočítat, proto how many.'),
+        $c('How much water? — ___.', 'Two litres', ['Three carrots','Two litres','Four bottles of juice'], 'Litres měří množství vody. Juice je jiný nápoj.'),
+    ],
+    'cafe' => [
+        $t('translate', 'Přelož „Can I have the bill, please?“ do češtiny.', ['Mohu dostat účet prosím','Mohu dostat účet, prosím','Můžu dostat účet prosím','Můžu dostat účet, prosím','Účet prosím','Účet, prosím','Mohl bych dostat účet, prosím','Mohla bych dostat účet, prosím'], 'The bill je účet a Can I have …, please? je zdvořilá žádost.'),
+        $c('Číšník řekne „Here you are.“ při podávání jídla. Co odpovíš?', 'Thank you.', ['Thank you.','Good night.','Yes, I am.'], 'Here you are zde znamená „Tady máte“. Thank you je vhodné poděkování.'),
+    ],
+    'was' => [
+        $t('fill', 'The shops ___ open last Sunday. (zápor)', ["weren't","were not"], 'The shops je množné číslo, proto were not nebo weren’t.'),
+        $t('translate', 'Přelož „We were tired“ do češtiny.', ['Byli jsme unavení','Byly jsme unavené'], 'Were znamená byli jsme a tired je unavený.'),
+    ],
+    'regular' => [
+        $t('fill', 'She ___ (dance) at the party.', 'danced', 'Dance končí na e, proto přidej jen -d.'),
+        $c('Které sloveso má minulý tvar s -ied?', 'carry', ['carry','play','open'], 'Carry končí na souhlásku a y: carried. Play má před y samohlásku a tvoří played.'),
+    ],
+    'irregular' => [
+        $t('fill', 'He ___ (write) a postcard yesterday.', 'wrote', 'Minulý tvar write je wrote.'),
+        $m(['take'=>'took','come'=>'came','find'=>'found','drink'=>'drank'], 'Took, came, found a drank mají nepravidelné tvary bez -ed.'),
+    ],
+    'past' => [
+        $t('fill', 'Did your friends ___ (eat) lunch at home?', 'eat', 'Did už nese minulý čas. Eat zůstává bez změny.'),
+        $t('translate', 'Přelož „Did you see the castle?“ do češtiny.', ['Viděl jsi hrad','Viděla jsi hrad','Viděli jste hrad','Viděly jste hrad'], 'Did značí minulou otázku a see the castle je vidět hrad.'),
+    ],
+    'compare' => [
+        $t('fill', 'This homework is ___ (easy) than the last one.', 'easier', 'Před -er měníme koncové y na i.'),
+        $c('My first score was 40 %. My new score is 80 %. It is ___.', 'better', ['worse','better','best than'], 'Better je druhý stupeň good. Vyšší skóre je v tomto kontextu lepší.'),
+    ],
+    'reading' => [
+        $r('Co musí udělat návštěvníci s taškami?', 'Nechat je u vchodu', ['Vzít je do sálu','Nechat je u vchodu','Dát je do autobusu'], 'Leave large bags znamená nechat velké tašky a at the entrance určuje vchod.', 'Please leave large bags at the entrance. Small cameras are allowed in the hall.'),
+        $r('Proč si máš donést vlastní láhev?', 'V automatu není voda', ['Hřiště je daleko','V automatu není voda','Trénink je kratší'], 'Out of water říká, že voda došla. Start time 4 pm jen uvádí začátek.', 'Bring your own bottle to training. The drinks machine is out of water. Start time: 4 pm.'),
+    ],
+    'listening' => [
+        $l('Co zůstalo doma?', 'Batoh', ['Sešit','Batoh','Telefon'], 'School bag je školní batoh. Left it at home říká, že zůstal doma.', "I can't find my school bag. I think I left it at home."),
+        $l('Kolik je hodin?', '2:45', ['2:15','2:45','3:45'], 'A quarter to three je o čtvrt hodiny méně než tři.', "It's a quarter to three. The film starts in fifteen minutes."),
+    ],
+    'talk' => [
+        $c('Jak nabídneš spolužákovi pomoc?', 'Can I help you?', ['Do you help me?','Can I help you?','You must help.'], 'Can I help you? nabízí vlastní pomoc. Do you help me? se ptá na něco jiného.'),
+        $t('translate', 'Přelož „I’m going to visit my cousin“ do češtiny.', ['Chystám se navštívit bratrance','Chystám se navštívit sestřenici','Navštívím bratrance','Navštívím sestřenici'], 'Be going to oznamuje plán a cousin může být bratranec i sestřenice.'),
+    ],
+];
+foreach ($more as $id => $items) {
+    $lessons[$id][4] = [...$lessons[$id][4], ...$items];
+}
+return $lessons;

@@ -9,7 +9,7 @@ final class Web
     private string $roundKey;
     private string $resultKey;
 
-    public function __construct(private Store $store, private array $packs)
+    public function __construct(private Store $store, private array $packs, private LearningWeb $learning)
     {
         $this->wordsMode = ($_GET['vyzva'] ?? null) === 'slova';
         $this->roundKey = $this->wordsMode ? 'wordsRound' : 'round';
@@ -27,9 +27,8 @@ final class Web
                 http_response_code(403);
                 exit('Platnost formuláře vypršela. Obnov stránku.');
             }
-            $this->submit($path);
         }
-        if ($method !== 'GET' && $method !== 'HEAD') {
+        if (!in_array($method, ['GET', 'HEAD', 'POST'], true)) {
             http_response_code(405);
             header('Allow: GET, HEAD, POST');
             return;
@@ -46,6 +45,24 @@ final class Web
         unset($_SESSION['message']);
         $rankings = [];
         $level = null;
+        $newPage = $this->learning->page((string) $path, $method, $player);
+        if ($player && $method === 'GET') {
+            $this->store->learning->visit((int) $player['id']);
+        }
+        if ($newPage === null && $player && $this->store->accounts->grade((int) $player['id'])['ceiling'] < 3 &&
+            ($path === '/' || str_starts_with((string) $path, '/mise') || str_starts_with((string) $path, '/hra'))) {
+            header('Location: /predmety', true, 303);
+            exit;
+        }
+        if ($newPage === null && $method === 'POST') {
+            $this->submit($path);
+        }
+        $profile = $player ? $this->learning->profile((int) $player['id'], $path === '/profil') : null;
+        if ($newPage !== null) {
+            [$view, $page] = $newPage;
+            require __DIR__ . '/../Views/layout.php';
+            return;
+        }
         $view = match ($path) {
             '/' => 'map',
             '/prihlaseni', '/registrace' => 'auth',
@@ -106,7 +123,8 @@ final class Web
 
     private function ensureUnlocked(int $level): void
     {
-        if (!isset($this->packs[$level]) || ($level > 0 && !isset($this->progress[$level - 1]))) {
+        $required = $level > 0 ? range(0, $level - 1) : [];
+        if (!isset($this->packs[$level]) || array_diff($required, array_keys($this->progress))) {
             $this->go('/', 'Tahle mise se odemkne po dokončení předchozí.');
         }
     }
@@ -117,6 +135,7 @@ final class Web
             $this->authenticate($path);
         }
         if ($path === '/odhlaseni') {
+            $this->store->accounts->forget();
             $_SESSION = [];
             session_regenerate_id(true);
             $this->go('/');
@@ -144,6 +163,16 @@ final class Web
             case '/hra/dal':
                 $this->advance();
             case '/profil':
+                if ($this->field('action') === 'password') {
+                    $next = $this->field('next_password');
+                    $changed = $next === $this->field('confirm_password')
+                        && $this->store->accounts->changePassword($player, $this->field('current_password'), $next);
+                    $this->go('/profil', $changed ? 'Heslo je změněné. Ostatní zařízení jsou odhlášená.' : 'Zkontroluj současné heslo a zopakování nového hesla.');
+                }
+                if ($this->field('action') === 'grade') {
+                    $saved = $this->store->accounts->initializeGrade($player, (int) $this->field('grade'));
+                    $this->go('/profil', $saved ? 'Ročník uložen.' : 'Ročník může později upravit rodič nebo správce.');
+                }
                 $school = trim($this->field('school'));
                 if (mb_strlen($school) > 100) {
                     $this->go('/profil', 'Název školy může mít nejvýš 100 znaků.');
@@ -168,12 +197,20 @@ final class Web
             || str_contains($password, "\0") || ($register && mb_strlen($password) < 8)) {
             $this->go($path, $register ? 'Přezdívka má mít 3–20 znaků (A–Z, číslice, _ nebo -) a heslo alespoň 8 znaků.' : 'Přezdívka nebo heslo nesouhlasí.');
         }
-        $id = $register ? $this->store->register($handle, $password) : $this->store->login($handle, $password);
+        $grade = (int) $this->field('grade');
+        if ($register && ($grade < 1 || $grade > 9)) {
+            $this->go($path, 'Vyber svůj ročník.');
+        }
+        $id = $register ? $this->store->register($handle, $password, $grade) : $this->store->login($handle, $password);
         if (!$id) {
             $this->go($path, $register ? 'Tahle přezdívka už je zabraná.' : 'Přihlášení se nepovedlo. Zkontroluj údaje nebo zkus za pár minut.');
         }
-        session_regenerate_id(true);
-        $_SESSION = ['player' => $id, 'csrf' => bin2hex(random_bytes(32))];
+        $return = $_SESSION['learning_return'] ?? null;
+        $this->store->accounts->signIn($id, $this->field('remember') === '1');
+        if ($return) {
+            header('Location: ' . $return, true, 303);
+            exit;
+        }
         $this->go('/');
     }
 
@@ -229,12 +266,25 @@ final class Web
             $this->go('/hra', 'Vyplň všechny řádky a napiš do každého jedno slovo nebo ustálené spojení.');
         }
 
+        $round['attempt'] ??= bin2hex(random_bytes(16));
+        $round['seconds'] = min(7200, ($round['seconds'] ?? 0) + max(0, min(90, time() - ($round['shownAt'] ?? time()))));
+        $round['answered'] = ($round['answered'] ?? 0) + count($expected);
+        $round['correct'] = ($round['correct'] ?? 0) + count($expected) - count($mistakes);
+        $mode = $this->wordsMode ? 'words' : 'order';
+        $score = (int) floor($round['correct'] * 100 / max(1, $round['answered']));
+        $this->store->learning->study($round['attempt'], $player, 'cestina/3', "legacy:$mode:$level",
+            $round['seconds'], $score, $round['answered'], $final);
+
         if ($final) {
             if ($mistakes === []) {
                 $this->store->award($player, $level, Round::REWARD, $this->wordsMode);
             }
             $_SESSION[$this->resultKey] = $mistakes;
             Round::move($round, $mistakes === [] ? 'won' : 'retry');
+            if ($mistakes !== []) {
+                $round['attempt'] = bin2hex(random_bytes(16));
+                $round['seconds'] = $round['answered'] = $round['correct'] = 0;
+            }
         } elseif ($round['phase'] === 'practice' && $mistakes === []) {
             if (!$this->wordsMode) {
                 $round['gap'] = array_rand(Round::trail($round, $words));

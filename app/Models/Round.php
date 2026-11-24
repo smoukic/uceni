@@ -13,6 +13,11 @@ final class Round
             'offset' => 0,
             'phase' => 'study',
             'token' => bin2hex(random_bytes(16)),
+            'attempt' => bin2hex(random_bytes(16)),
+            'shownAt' => time(),
+            'seconds' => 0,
+            'answered' => 0,
+            'correct' => 0,
         ];
     }
 
@@ -43,6 +48,7 @@ final class Round
     public static function move(array &$round, string $phase): void
     {
         $round['phase'] = $phase;
+        $round['shownAt'] = time();
         $round['token'] = bin2hex(random_bytes(16));
     }
 

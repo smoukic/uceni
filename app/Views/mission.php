@@ -15,3 +15,18 @@
         <?php endif ?>
     <?php endif ?>
 </section>
+
+<?php if ($player && isset($progress[$level])): ?>
+<section class="panel learning-panel narrow">
+    <details>
+        <summary>Začít část znovu</summary>
+        <p>Ztratíš <strong><?= e($progress[$level]) ?> XP</strong> za tuto misi a další mise budou dočasně zamčené. Po novém zvládnutí se XP vrátí. Mince zůstávají.</p>
+        <form method="post" action="<?= e($url('/restart-cestiny')) ?>" class="stack">
+            <?php csrf() ?>
+            <input type="hidden" name="level" value="<?= e($level) ?>"><input type="hidden" name="xp" value="<?= e($progress[$level]) ?>">
+            <label class="inline-check"><input type="checkbox" name="confirm" value="1" required> Rozumím a chci misi restartovat.</label>
+            <button class="btn secondary">Potvrdit restart</button>
+        </form>
+    </details>
+</section>
+<?php endif ?>

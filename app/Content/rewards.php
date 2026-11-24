@@ -1,0 +1,25 @@
+<?php
+return [
+    'xpPerCoin' => 10,
+    'titles' => [0 => 'Průzkumník', 3 => 'Objevitel', 6 => 'Znalec', 10 => 'Mistr výprav', 18 => 'Mentor'],
+    'cosmetics' => [
+        'fox' => ['avatar', 'Liška', '🦊', 12],
+        'owl' => ['avatar', 'Sova', '🦉', 18],
+        'dragon' => ['avatar', 'Drak', '🐲', 35],
+        'mint' => ['frame', 'Mátový rámeček', 'mint', 15],
+        'gold' => ['frame', 'Zlatý rámeček', 'gold', 30],
+        'wordsmith' => ['title', 'Slovní mág', 'Slovní mág', 20],
+        'pathfinder' => ['title', 'Hledač cest', 'Hledač cest', 28],
+        'forest' => ['theme', 'Lesní motiv', 'forest', 24],
+        'night' => ['theme', 'Noční obloha', 'night', 32],
+        'compass' => ['pin', 'Kompas', '🧭', 14],
+        'whale' => ['avatar', 'Velryba', '🐋', 25],
+        'robot' => ['avatar', 'Robot', '🤖', 42],
+        'rose' => ['frame', 'Růžový rámeček', 'rose', 20],
+        'sky' => ['frame', 'Nebeský rámeček', 'sky', 24],
+        'berry' => ['theme', 'Lesní borůvky', 'berry', 40],
+        'ocean' => ['theme', 'Pod hladinou', 'ocean', 45],
+        'number-guide' => ['title', 'Mistr čísel', 'Mistr čísel', 24],
+        'rocket' => ['pin', 'Raketa', '🚀', 21],
+    ],
+];

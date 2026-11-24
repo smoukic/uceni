@@ -10,6 +10,11 @@
         <label for="password">Heslo</label>
         <input id="password" name="password" type="password" required <?= $register ? 'minlength="8"' : '' ?> maxlength="72" autocomplete="<?= $register ? 'new-password' : 'current-password' ?>">
         <?php if ($register): ?><small>Alespoň 8 znaků.</small><?php endif ?>
+        <?php if ($register): ?>
+            <label for="grade">Jaký ročník chodíš?</label>
+            <select id="grade" name="grade" required><option value="">Vyber ročník</option><?php $selectedGrade = null; require __DIR__ . '/grade-options.php'; ?></select>
+        <?php endif ?>
+        <label class="inline-check"><input type="checkbox" name="remember" value="1"> Zapamatovat přihlášení na tomto zařízení</label>
         <button class="btn primary"><?= $register ? 'Vytvořit účet' : 'Přihlásit se' ?></button>
     </form>
     <p><a href="<?= e($url($register ? '/prihlaseni' : '/registrace')) ?>"><?= $register ? 'Už mám účet' : 'Chci si vytvořit účet' ?></a></p>

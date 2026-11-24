@@ -4,6 +4,8 @@ declare(strict_types=1);
 final class Store
 {
     private PDO $db;
+    public readonly LearningStore $learning;
+    public readonly Accounts $accounts;
 
     public function __construct(string $filename)
     {
@@ -36,6 +38,8 @@ final class Store
                 until_at INTEGER NOT NULL
             );
         ");
+        $this->learning = new LearningStore($this->db);
+        $this->accounts = new Accounts($this->db);
     }
 
     private function query(string $sql, array $parameters): PDOStatement
@@ -50,11 +54,21 @@ final class Store
         return $this->query('SELECT id, handle, school, team FROM players WHERE id = ?', [$id])->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function register(string $handle, string $password): ?int
+    public function register(string $handle, string $password, int $grade): ?int
     {
-        $statement = $this->query('INSERT INTO players (handle, password) VALUES (?, ?) ON CONFLICT(handle) DO NOTHING',
-            [$handle, password_hash($password, PASSWORD_DEFAULT)]);
-        return $statement->rowCount() ? (int) $this->db->lastInsertId() : null;
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        return $this->learning->transaction(function () use ($handle, $hash, $grade): ?int {
+            $statement = $this->query('INSERT INTO players (handle, password) VALUES (?, ?) ON CONFLICT(handle) DO NOTHING',
+                [$handle, $hash]);
+            if (!$statement->rowCount()) {
+                return null;
+            }
+            $id = (int) $this->db->lastInsertId();
+            if (!$this->accounts->initializeGrade($id, $grade)) {
+                throw new LogicException('Invalid grade during registration');
+            }
+            return $id;
+        });
     }
 
     public function login(string $handle, string $password): ?int
@@ -90,9 +104,7 @@ final class Store
 
     public function award(int $player, int $level, int $xp, bool $wordsMode = false): void
     {
-        $table = $wordsMode ? 'word_medals' : 'medals';
-        $this->query("INSERT INTO $table VALUES (?, ?, ?)
-            ON CONFLICT(player, level) DO NOTHING", [$player, $level, $xp]);
+        $this->learning->awardCzech($player, $level, $xp, $wordsMode);
     }
 
     public function school(int $player, string $school): void
