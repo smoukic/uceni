@@ -42,6 +42,11 @@ final class Store
         $this->accounts = new Accounts($this->db);
     }
 
+    public function recovery(): Recovery
+    {
+        return new Recovery($this->db, $this->learning, RecoveryMail::send(...));
+    }
+
     private function query(string $sql, array $parameters): PDOStatement
     {
         $statement = $this->db->prepare($sql);

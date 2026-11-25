@@ -45,6 +45,39 @@ final class Web
         unset($_SESSION['message']);
         $rankings = [];
         $level = null;
+        if (in_array($path, ['/obnova-hesla', '/nove-heslo', '/overit-email'], true)) {
+            $view = 'recovery';
+            if ($method === 'POST') {
+                $recovery = $this->store->recovery();
+                if ($path === '/obnova-hesla') {
+                    $handle = trim($this->field('handle'));
+                    $email = $this->field('email');
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+                    $notice = 'Pokud údaje odpovídají ověřenému účtu, přijde ti e-mail s odkazem.';
+                    if (function_exists('fastcgi_finish_request')) {
+                        $_SESSION['message'] = $notice;
+                        session_write_close();
+                        header('Location: /obnova-hesla', true, 303);
+                        fastcgi_finish_request();
+                        $recovery->requestReset($handle, $email, $ip);
+                        exit;
+                    }
+                    $recovery->requestReset($handle, $email, $ip);
+                    $this->go($path, $notice);
+                }
+                $verify = $path === '/overit-email';
+                $password = $this->field('password');
+                $success = ($verify || $password === $this->field('confirm_password'))
+                    && $recovery->complete($verify ? 'verify' : 'reset', $this->field('token'), $password);
+                if ($success) {
+                    $this->go($verify && $player ? '/profil' : '/prihlaseni', $verify ? 'E-mail je ověřený.' : 'Heslo je změněné. Přihlas se novým heslem.');
+                }
+                // Same document keeps the token in the hidden field for correcting a typo.
+                $message = 'Odkaz už neplatí nebo zadané údaje nejsou správné.';
+            }
+            require __DIR__ . '/../Views/layout.php';
+            return;
+        }
         $newPage = $this->learning->page((string) $path, $method, $player);
         if ($player && $method === 'GET') {
             $this->store->learning->visit((int) $player['id']);
@@ -63,6 +96,7 @@ final class Web
             require __DIR__ . '/../Views/layout.php';
             return;
         }
+        $verifiedEmail = $path === '/profil' && $player ? $this->store->recovery()->email((int) $player['id']) : null;
         $view = match ($path) {
             '/' => 'map',
             '/prihlaseni', '/registrace' => 'auth',
@@ -163,6 +197,10 @@ final class Web
             case '/hra/dal':
                 $this->advance();
             case '/profil':
+                if ($this->field('action') === 'email') {
+                    $sent = $this->store->recovery()->requestEmail($player, $this->field('email'), $this->field('current_password'));
+                    $this->go('/profil', $sent ? 'Ověřovací odkaz jsme poslali na zadaný e-mail.' : 'Ověřovací odkaz se nepodařilo odeslat. Zkontroluj e-mail a heslo nebo zkus později.');
+                }
                 if ($this->field('action') === 'password') {
                     $next = $this->field('next_password');
                     $changed = $next === $this->field('confirm_password')

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../app/Learning/LearningStore.php';
 require __DIR__ . '/../app/Learning/Accounts.php';
+require __DIR__ . '/../app/Learning/Recovery.php';
+require __DIR__ . '/../app/Learning/RecoveryMail.php';
 require __DIR__ . '/../app/Learning/Curriculum.php';
 require __DIR__ . '/../app/Learning/LearningWeb.php';
 require __DIR__ . '/../app/Models/Store.php';

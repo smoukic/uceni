@@ -19,3 +19,7 @@
     </form>
     <p><a href="<?= e($url($register ? '/prihlaseni' : '/registrace')) ?>"><?= $register ? 'Už mám účet' : 'Chci si vytvořit účet' ?></a></p>
 </section>
+
+<?php if (!$register): ?>
+    <p class="narrow"><a href="/obnova-hesla">Nejde se mi přihlásit</a></p>
+<?php endif ?>

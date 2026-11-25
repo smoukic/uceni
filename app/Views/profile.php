@@ -52,3 +52,14 @@
     <p><a href="/historie">Historie učení a opakování</a></p>
 </section>
 <?php endif ?>
+
+<section class="panel learning-panel narrow">
+    <h2>E-mail pro obnovu hesla</h2>
+    <p><?= $verifiedEmail ? 'Ověřený e-mail: ' . e($verifiedEmail) : 'Přidej a ověř e-mail, ať si můžeš obnovit zapomenuté heslo.' ?></p>
+    <form class="stack" method="post" action="/profil">
+        <?php csrf() ?>
+        <label>E-mail <input name="email" type="email" required maxlength="254" autocomplete="email"></label>
+        <label>Současné heslo <input required name="current_password" type="password" maxlength="72" autocomplete="current-password"></label>
+        <button class="btn primary" name="action" value="email">Poslat ověřovací odkaz</button>
+    </form>
+</section>

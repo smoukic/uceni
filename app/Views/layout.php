@@ -16,7 +16,7 @@ $titles = ['map' => 'Mapa misí', 'auth' => 'Hráčský účet', 'profile' => 'M
 $titles += [
     'subjects' => 'Předměty', 'course' => 'Mapa ročníku', 'course-mission' => 'Mise', 'lesson' => 'Lekce',
     'assessment' => 'Opakování a testy', 'exercise' => 'Cvičení', 'rewards' => 'Odměny',
-    'guardian-auth' => 'Pro rodiče', 'guardian' => 'Rodičovská sekce', 'history' => 'Historie učení', 'admin' => 'Správa aplikace', 'forbidden' => 'Přístup odepřen',
+    'guardian-auth' => 'Pro rodiče', 'guardian' => 'Rodičovská sekce', 'history' => 'Historie učení', 'admin' => 'Správa aplikace', 'forbidden' => 'Přístup odepřen', 'recovery' => 'Obnova přístupu',
 ];
 $page ??= [];
 $style = $profile['style'] ?? [];

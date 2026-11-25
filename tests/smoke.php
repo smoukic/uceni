@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../app/Learning/Accounts.php';
 require __DIR__ . '/../app/Learning/Curriculum.php';
+require __DIR__ . '/../app/Learning/Recovery.php';
 require __DIR__ . '/../app/Learning/LearningStore.php';
 require __DIR__ . '/../app/Models/Store.php';
 
@@ -103,6 +104,27 @@ try {
     check(!$learn->changeClaim($guardian, 1, 'rejected') && !$learn->claim(10, 1, str_repeat('a', 32)), 'Replays cannot duplicate transaction');
     check($learn->summary(10)['balance'] === $wallet, 'Balance reconciles');
     check($learn->saveCosmetic('smoke-tile', ['pin', 'Ozdoba', '★', 1, 0]) && !$learn->buy(10, 'smoke-tile'), 'Inactive product unavailable');
+    $db->prepare('UPDATE players SET password = ? WHERE id = 10')->execute([password_hash('test-old-password', PASSWORD_DEFAULT)]);
+    $outbox = [];
+    $recovery = new Recovery($db, new LearningStore($db), static function (string $email, string $purpose, string $token) use (&$outbox): bool {
+        $outbox[] = compact('email', 'purpose', 'token');
+        return true;
+    });
+    check($recovery->requestEmail(10, 'learner@example.test', 'test-old-password'), 'Verification issued');
+    $recovery->requestReset('legacy', 'learner@example.test', '127.0.0.1');
+    check(count($outbox) === 1, 'Unverified address cannot reset password');
+    check($recovery->complete('verify', $outbox[0]['token']), 'Verification token consumed');
+    $recovery->requestReset('legacy', 'wrong@example.test', '127.0.0.1');
+    check(count($outbox) === 1, 'Wrong email cannot reset password');
+    $recovery->requestReset('legacy', 'learner@example.test', '127.0.0.1');
+    check(count($outbox) === 2, 'Reset message queued for verified address');
+    $token = $outbox[1]['token'];
+    check($recovery->complete('reset', $token, 'test-new-password'), 'Password changed');
+    check(!$recovery->complete('reset', $token, 'test-other-password'), 'Reset token is single use');
+    check((int) $db->query('SELECT epoch FROM password_epochs WHERE player = 10')->fetchColumn() === 1, 'Sessions revoked');
+    check(password_verify('test-new-password', $db->query('SELECT password FROM players WHERE id = 10')->fetchColumn()), 'New password persisted');
+    check($learn->summary(10)['xp'] === $before['xp'], 'Password reset preserves XP');
+
     check($db->query('PRAGMA integrity_check')->fetchColumn() === 'ok', 'SQLite integrity');
     check($db->query('PRAGMA foreign_key_check')->fetch() === false, 'Foreign keys');
     echo "$courses courses, $items questions, $recordings recordings. Account, migration, XP and wallet checks OK.\n";

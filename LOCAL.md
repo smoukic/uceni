@@ -126,3 +126,17 @@ php tests/smoke.php
 
 Test používá vlastní dočasný SQLite soubor a ověřuje katalog, řešení úloh,
 nahrávky, migraci, rodičovská oprávnění, reset XP a transakce s mincemi.
+
+### Obnova hesla žáka
+
+Žák nejdřív v profilu ověří e-mail s použitím současného hesla. Na přihlašovací
+stránce pak může zadat svoji přezdívku a ověřený e-mail. Odkaz pro obnovu je
+jednorázový a platí 30 minut. Po změně hesla se zneplatní staré relace.
+Stávající účty se dál přihlašují přezdívkou, dokud nebude ověřené pokrytí e-maily
+a připraven přechod. Jedna ověřená adresa patří jen jednomu žákovskému účtu.
+
+Poštovní klient v produkci čte stejnou neveřejnou konfiguraci jako rulc.eu
+(`/home/rulcj/.rulc-contact/contact.ini`). Pro jiné prostředí lze nastavit
+`UCENI_MAIL_CONFIG`. Soubor obsahuje `from`, `smtp_url`, `smtp_user` a
+`smtp_password`. PHP-FPM musí mít právo soubor přečíst. Test používá simulovaný
+transport. Skutečné doručení je potřeba ověřit v produkci na schválené adrese.

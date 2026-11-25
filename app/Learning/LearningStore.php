@@ -4,7 +4,7 @@ declare(strict_types=1);
 final class LearningStore
 {
     private array $config;
-    private const SCHEMA_VERSION = 2;
+    private const SCHEMA_VERSION = 3;
 
     public function __construct(private PDO $db)
     {

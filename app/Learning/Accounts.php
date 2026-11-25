@@ -55,6 +55,7 @@ final class Accounts
                 [password_hash($next, PASSWORD_DEFAULT), $player, $old])->rowCount() > 0;
             if ($changed) {
                 $this->query('DELETE FROM remembered_logins WHERE player = ?', [$player]);
+                $this->query('DELETE FROM recovery_tokens WHERE player = ?', [$player]);
                 $this->query('INSERT INTO password_epochs VALUES (?, 1) ON CONFLICT(player) DO UPDATE SET epoch = epoch + 1', [$player]);
             }
             $this->db->commit();

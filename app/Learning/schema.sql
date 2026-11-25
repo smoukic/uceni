@@ -148,3 +148,19 @@ CREATE TABLE IF NOT EXISTS guardian_password_epochs (
     guardian INTEGER PRIMARY KEY REFERENCES guardians(id),
     epoch INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS verified_player_emails (
+    player INTEGER PRIMARY KEY REFERENCES players(id),
+    email TEXT NOT NULL COLLATE NOCASE UNIQUE
+);
+CREATE TABLE IF NOT EXISTS recovery_tokens (
+    digest TEXT PRIMARY KEY,
+    player INTEGER NOT NULL REFERENCES players(id),
+    purpose TEXT NOT NULL CHECK (purpose IN ('verify', 'reset')),
+    email TEXT NOT NULL,
+    expires INTEGER NOT NULL,
+    UNIQUE (player, purpose)
+);
+CREATE TABLE IF NOT EXISTS recovery_limits (
+    bucket TEXT PRIMARY KEY, expires INTEGER NOT NULL, attempts INTEGER NOT NULL
+);
