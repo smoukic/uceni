@@ -31,7 +31,7 @@ $formatTime = static function (int $seconds): string {
     <?php foreach ($activity['recent'] as $activityRow): ?>
         <?php [$subjectKey, $year] = explode('/', $activityRow['course'], 2); ?>
         <li><span><strong><?= e($labels[$activityRow['course']][$activityRow['task']] ?? 'Vyjmenovaná slova') ?></strong>
-            <small><?= e($courseNames[$subjectKey] ?? $subjectKey) ?> · <?= e($year) ?>. ročník · <?= e($activityRow['day']) ?><?= $activityRow['completed'] ? '' : ' · rozpracováno' ?></small></span>
+            <small><?= e($labels[$activityRow['course']]['_course'] ?? $courseNames[$subjectKey] ?? $subjectKey) ?> · <?= e($year) ?>. ročník · <?= e($activityRow['day']) ?><?= $activityRow['completed'] ? '' : ' · rozpracováno' ?></small></span>
             <span><?= e($activityRow['score']) ?> % · <?= e($activityRow['answered']) ?> odp. · <?= e($formatTime((int) $activityRow['seconds'])) ?></span></li>
     <?php endforeach ?>
 </ul>

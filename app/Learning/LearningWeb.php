@@ -99,8 +99,8 @@ final class LearningWeb
         $access = [];
         $allPassed = true;
         foreach ($course['missions'] as $key => $mission) {
-            $access[$key] = $key === 'diktat' || $allPassed;
-            $allPassed = $allPassed && ($key === 'diktat' || ($results['mission:' . $key] ?? 0) >= self::PASS);
+            $access[$key] = $mission['independent'] || $allPassed;
+            $allPassed = $allPassed && ($mission['independent'] || ($results['mission:' . $key] ?? 0) >= self::PASS);
         }
 
         if ($path === '') {
@@ -133,6 +133,13 @@ final class LearningWeb
             $this->redirect($base, 'Tato mise se odemkne po zvládnutí předchozího testu.');
         }
 
+        $lessonAccess = [];
+        $previousPassed = true;
+        foreach (array_keys($mission['lessons']) as $lessonId) {
+            $passed = ($results['lesson:' . $lessonId] ?? 0) >= self::PASS;
+            $lessonAccess[$lessonId] = !$mission['sequential'] || $previousPassed || $passed;
+            $previousPassed = $previousPassed && $passed;
+        }
         $missionUrl = $base . '/' . $key;
         if (!isset($parts[1])) {
             $required = array_filter($mission['lessons'], static fn(array $lesson): bool => $lesson['category'] !== 'Rozšíření');
@@ -159,12 +166,15 @@ final class LearningWeb
                 shuffle($items);
                 $this->start($course, $items, "mission:$key", 'Test mise: ' . $mission['title'], $missionUrl, $playerId);
             }
-            return ['course-mission', compact('course', 'mission', 'missionUrl', 'results', 'ready', 'reset')];
+            return ['course-mission', compact('course', 'mission', 'missionUrl', 'results', 'ready', 'reset', 'lessonAccess')];
         }
 
         $lesson = $mission['lessons'][$parts[1]] ?? null;
         if ($lesson === null) {
             return $this->missing();
+        }
+        if (!$lessonAccess[$lesson['id']]) {
+            $this->redirect($missionUrl, 'Nejdřív dokonči ověření v předchozí části.');
         }
         $lessonUrl = $missionUrl . '/' . $lesson['id'];
         if ($method === 'POST') {
@@ -172,7 +182,8 @@ final class LearningWeb
                 $this->signIn($lessonUrl);
             }
             $quiz = $this->field('action') === 'quiz';
-            $items = $quiz ? array_slice($lesson['items'], -3) : array_slice($lesson['items'], 0, -3);
+            $quizSize = count($lesson['items']) > 4 ? 3 : 2;
+            $items = $quiz ? array_slice($lesson['items'], -$quizSize) : array_slice($lesson['items'], 0, -$quizSize);
             $task = ($quiz ? 'lesson:' : 'practice:') . $lesson['id'];
             $this->start($course, $items, $task, $lesson['name'], $lessonUrl, $playerId);
         }
@@ -189,7 +200,7 @@ final class LearningWeb
     {
         $items = [];
         foreach ($course['missions'] as $mission) {
-            if ($mission['id'] === 'diktat') {
+            if ($mission['independent']) {
                 continue;
             }
             $pool = [];
@@ -517,6 +528,7 @@ final class LearningWeb
             foreach (array_keys($entry['grades'] ?? []) as $grade) {
                 $course = $this->curriculum->course($subject, (string) $grade);
                 $key = $course['id'];
+                $labels[$key]['_course'] = $course['subject'];
                 $labels[$key]['review'] = 'Opakování chyb';
                 $labels[$key]['exam'] = 'Závěrečný test ročníku';
                 foreach ($course['missions'] as $mission) {

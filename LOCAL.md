@@ -140,3 +140,23 @@ Poštovní klient v produkci čte stejnou neveřejnou konfiguraci jako rulc.eu
 `UCENI_MAIL_CONFIG`. Soubor obsahuje `from`, `smtp_url`, `smtp_user` a
 `smtp_password`. PHP-FPM musí mít právo soubor přečíst. Test používá simulovaný
 transport. Skutečné doručení je potřeba ověřit v produkci na schválené adrese.
+
+### Rozšířený katalog a rozsah učiva
+
+Čeština má samostatné literární mise ve všech ročnících. Literatura obsahuje
+také krátké autorské ukázky s úlohami k textu. Nové lekce češtiny, matematiky
+a angličtiny jsou dostupné jako samostatné procvičování. Zachovávají existující
+pořadí povinných misí, odkazy a odemčené závěrečné testy.
+
+Člověk a jeho svět pokrývá 1.–5. ročník, informatika 4.–9. ročník,
+fyzika, dějepis, zeměpis, přírodopis a občanská výchova 6.–9. ročník
+a chemie 8.–9. ročník. Toto je zvolená posloupnost pro hru. Školní
+vzdělávací programy mohou témata rozložit jinak. Nové obory nabízejí vstupní
+mise k vybraným tématům, nikoli plný roční plán. Praktické výchovy a úlohy
+jako terénní pozorování, samostatné psaní, složitější konstrukce, školní
+laboratorní práce a dlouhodobé projekty vyžadují vlastní formát výuky a hodnocení.
+
+- [RVP ZV 2023](https://edu.gov.cz/wp-content/uploads/2023/07/RVP_ZV_2023_cista_verze.pdf)
+- [Výstupy revidovaného RVP](https://prohlednout.rvp.cz/zakladni-vzdelavani)
+- [Modelové ŠVP NPI](https://revize.rvp.cz/zv/jak-na-svp/modelove-svp-pro-zs)
+- [ŠVP ZŠ svaté Zdislavy po ročnících](https://www.zszdislavy.cz/%C5%A1vp-p%C5%99edm%C4%9Bty)

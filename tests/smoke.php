@@ -37,11 +37,19 @@ try {
     $curriculum = new Curriculum(__DIR__ . '/../app/Content');
     $courses = $items = $recordings = 0;
     foreach ($curriculum->catalog as $subject => $entry) {
-        check(count($entry['grades']) === 9, "$subject has all grades");
+        [$first, $last] = $entry['years'] ?? [1, 9];
+        check(array_keys($entry['grades']) === range($first, $last), "$subject has all expected grades");
         foreach ($entry['grades'] as $grade => $_) {
             $course = $curriculum->course($subject, (string) $grade);
             $courses++;
-            check(count($course['missions']) >= 4, 'Grade course has missions');
+            check(count($course['missions']) >= 2, 'Grade course has missions');
+            if ($subject === 'cestina') {
+                $literature = $course['topics']['literatura'][1] ?? [];
+                check(count($literature) >= 2, "Literature has two lessons for grade $grade");
+                foreach ($literature as $mission) {
+                    check($course['missions'][$mission]['independent'], 'Literature can be started without clearing earlier grammar');
+                }
+            }
             foreach ($course['items'] as $id => $item) {
                 $items++;
                 $answer = $item['answer'];

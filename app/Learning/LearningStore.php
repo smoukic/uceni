@@ -575,13 +575,15 @@ final class LearningStore
         if (!array_intersect($tasks, array_keys($results))) {
             return null;
         }
-        $exam = $mission !== 'diktat' && ($results['mission:' . $mission] ?? 0) >= 80 && isset($results['exam']);
+        $exam = !$entry['independent'] && ($results['mission:' . $mission] ?? 0) >= 80 && isset($results['exam']);
         if ($exam) {
             $tasks[] = 'exam';
         }
         $sources = array_map(static fn(string $task): string => "course:$id:$task", $tasks);
         $sources[] = "bonus:$id:mission:$mission";
-        $sources[] = "bonus:$id:topic:" . $entry['topic'];
+        if (($results['mission:' . $mission] ?? 0) >= 80) {
+            $sources[] = "bonus:$id:topic:" . $entry['topic'];
+        }
         if ($exam) {
             $sources[] = "bonus:$id:grade";
         }

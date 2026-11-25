@@ -8,7 +8,11 @@
             <?php $score = $results['lesson:' . $id] ?? null; ?>
             <li class="mission-row <?= $score !== null && $score >= 80 ? 'done' : '' ?>">
                 <div class="mission-name"><small><?= e($lesson['category']) ?></small><h3><?= e($lesson['name']) ?></h3></div>
-                <a class="btn secondary" href="<?= e($missionUrl . '/' . $id) ?>" aria-label="<?= e('Otevřít lekci ' . $lesson['name']) ?>"><?= $score === null ? 'Otevřít' : e($score) . ' %' ?></a>
+                <?php if ($lessonAccess[$id]): ?>
+                    <a class="btn secondary" href="<?= e($missionUrl . '/' . $id) ?>" aria-label="<?= e('Otevřít lekci ' . $lesson['name']) ?>"><?= $score === null ? 'Otevřít' : e($score) . ' %' ?></a>
+                <?php else: ?>
+                    <span class="lock">Zamčeno</span>
+                <?php endif ?>
             </li>
         <?php endforeach ?>
     </ol>

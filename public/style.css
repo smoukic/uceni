@@ -243,3 +243,6 @@ input { min-width: 0; width: 100%; min-height: 48px; padding: .58rem .8rem; bord
 .study-chart meter { inline-size: 100%; }
 .study-chart strong { color: var(--lime); text-align: end; }
 .study-chart small { text-align: end; }
+
+.course-topics { margin-block: 0 1rem; }
+.mission-row[id^="okruh-"] { scroll-margin-block-start: 1rem; }

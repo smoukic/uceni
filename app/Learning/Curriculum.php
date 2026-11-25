@@ -31,6 +31,7 @@ final class Curriculum
             'id' => "$subject/$grade",
             'url' => "/predmet/$subject/$grade",
             'subject' => $this->catalog[$subject]['title'],
+            'icon' => $this->catalog[$subject]['icon'],
             'topics' => $topics,
             'missions' => [],
             'items' => [],
@@ -38,7 +39,9 @@ final class Curriculum
         foreach ($topics as $topic => [$topicTitle, $missionIds]) {
             foreach ($missionIds as $missionId) {
                 [$icon, $title, $intro, $ids] = $missions[$missionId];
-                $mission = compact('icon', 'title', 'intro', 'topic') + ['id' => $missionId, 'lessons' => []];
+                $sequential = $missions[$missionId][4] ?? false;
+                $independent = $missions[$missionId][5] ?? ($missionId === 'diktat');
+                $mission = compact('icon', 'title', 'intro', 'topic', 'sequential', 'independent') + ['id' => $missionId, 'lessons' => []];
                 foreach ($ids as $id) {
                     [$name, $category, $explanation, $examples, $questions] = $lessons[$id];
                     $lesson = compact('id', 'name', 'category', 'explanation', 'examples') + [

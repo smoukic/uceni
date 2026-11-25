@@ -15,6 +15,7 @@
     <?php else: ?>
         <div class="subject-tiles">
             <?php foreach ($subjects as $id => $subject): ?>
+                <?php if (!isset($subject['grades'][$grade])) { continue; } ?>
                 <article class="panel subject-tile">
                     <span class="mission-icon" aria-hidden="true"><?= e($subject['icon']) ?></span>
                     <h3><?= e($subject['title']) ?></h3>
