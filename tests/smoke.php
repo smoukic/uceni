@@ -90,6 +90,7 @@ try {
     check(!$learn->resetMission(10, $course, 'start', $reset['key']), 'Old quote cannot restart a remastered chapter');
     check(count($learn->recentAttempts(10)) === 4, 'Attempt history survives reset');
 
+    check(Accounts::validPassword('les') && !Accounts::validPassword(''), 'Short nonempty passwords are allowed');
     $activation = $learn->guardianActivation();
     $guardian = $learn->registerGuardian('test-parent', 'test-guardian-password', $activation);
     check($guardian !== null && $learn->registerGuardian('second', 'test-guardian-password', $activation) === null, 'Single-use parent activation');
@@ -119,10 +120,10 @@ try {
     $recovery->requestReset('legacy', 'learner@example.test', '127.0.0.1');
     check(count($outbox) === 2, 'Reset message queued for verified address');
     $token = $outbox[1]['token'];
-    check($recovery->complete('reset', $token, 'test-new-password'), 'Password changed');
+    check($recovery->complete('reset', $token, 'les'), 'Password changed');
     check(!$recovery->complete('reset', $token, 'test-other-password'), 'Reset token is single use');
     check((int) $db->query('SELECT epoch FROM password_epochs WHERE player = 10')->fetchColumn() === 1, 'Sessions revoked');
-    check(password_verify('test-new-password', $db->query('SELECT password FROM players WHERE id = 10')->fetchColumn()), 'New password persisted');
+    check(password_verify('les', $db->query('SELECT password FROM players WHERE id = 10')->fetchColumn()), 'New password persisted');
     check($learn->summary(10)['xp'] === $before['xp'], 'Password reset preserves XP');
 
     check($db->query('PRAGMA integrity_check')->fetchColumn() === 'ok', 'SQLite integrity');

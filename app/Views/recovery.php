@@ -15,8 +15,8 @@
             <?php csrf() ?>
             <input type="hidden" name="token" id="recovery-token" value="<?= e(preg_match('/^[a-f0-9]{64}$/D', $this->field('token')) ? $this->field('token') : '') ?>">
             <?php if (!$verify): ?>
-                <label>Nové heslo <input required type="password" name="password" minlength="8" maxlength="72" autocomplete="new-password"></label>
-                <label>Zopakuj heslo <input required type="password" name="confirm_password" minlength="8" maxlength="72" autocomplete="new-password"></label>
+                <label>Nové heslo <input required type="password" name="password" maxlength="72" autocomplete="new-password"></label>
+                <label>Zopakuj heslo <input required type="password" name="confirm_password" maxlength="72" autocomplete="new-password"></label>
             <?php endif ?>
             <button class="btn primary"><?= $verify ? 'Potvrdit e-mail' : 'Uložit heslo' ?></button>
         </form>

@@ -231,9 +231,8 @@ final class Web
         $handle = trim($this->field('handle'));
         $password = $this->field('password');
         $register = $path === '/registrace';
-        if (!preg_match('/^[a-zA-Z0-9_-]{3,20}$/D', $handle) || strlen($password) > 72
-            || str_contains($password, "\0") || ($register && mb_strlen($password) < 8)) {
-            $this->go($path, $register ? 'Přezdívka má mít 3–20 znaků (A–Z, číslice, _ nebo -) a heslo alespoň 8 znaků.' : 'Přezdívka nebo heslo nesouhlasí.');
+        if (!preg_match('/^[a-zA-Z0-9_-]{3,20}$/D', $handle) || !Accounts::validPassword($password)) {
+            $this->go($path, $register ? 'Přezdívka má mít 3–20 znaků (A–Z, číslice, _ nebo -) a heslo nesmí být prázdné.' : 'Přezdívka nebo heslo nesouhlasí.');
         }
         $grade = (int) $this->field('grade');
         if ($register && ($grade < 1 || $grade > 9)) {

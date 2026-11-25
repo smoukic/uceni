@@ -395,7 +395,7 @@ final class LearningStore
 
     public function changeGuardianPassword(int $guardian, string $current, string $next): bool
     {
-        if (strlen($next) < 12 || strlen($next) > 72 || str_contains($next, "\0")
+        if (!Accounts::validPassword($next)
             || strlen($current) > 72 || str_contains($current, "\0")) {
             return false;
         }

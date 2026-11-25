@@ -44,8 +44,8 @@
         <form class="stack" method="post" action="/profil">
             <?php csrf() ?>
             <label>Současné heslo <input required name="current_password" type="password" maxlength="72" autocomplete="current-password"></label>
-            <label>Nové heslo <input required name="next_password" type="password" minlength="8" maxlength="72" autocomplete="new-password"></label>
-            <label>Zopakuj nové heslo <input required name="confirm_password" type="password" minlength="8" maxlength="72" autocomplete="new-password"></label>
+            <label>Nové heslo <input required name="next_password" type="password" maxlength="72" autocomplete="new-password"></label>
+            <label>Zopakuj nové heslo <input required name="confirm_password" type="password" maxlength="72" autocomplete="new-password"></label>
             <button class="btn primary" name="action" value="password">Uložit nové heslo</button>
         </form>
     </details>

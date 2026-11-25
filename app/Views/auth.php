@@ -8,8 +8,7 @@
         <input id="handle" name="handle" required pattern="[a-zA-Z0-9_\-]{3,20}" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false">
         <?php if ($register): ?><small>3–20 znaků. Písmena bez háčků a čárek, číslice, podtržítko nebo pomlčka.</small><?php endif ?>
         <label for="password">Heslo</label>
-        <input id="password" name="password" type="password" required <?= $register ? 'minlength="8"' : '' ?> maxlength="72" autocomplete="<?= $register ? 'new-password' : 'current-password' ?>">
-        <?php if ($register): ?><small>Alespoň 8 znaků.</small><?php endif ?>
+        <input id="password" name="password" type="password" required maxlength="72" autocomplete="<?= $register ? 'new-password' : 'current-password' ?>">
         <?php if ($register): ?>
             <label for="grade">Jaký ročník chodíš?</label>
             <select id="grade" name="grade" required><option value="">Vyber ročník</option><?php $selectedGrade = null; require __DIR__ . '/grade-options.php'; ?></select>

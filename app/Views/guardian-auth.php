@@ -15,7 +15,7 @@
             <?php csrf() ?>
             <label>Aktivační kód <input name="code" required minlength="32" maxlength="32" autocomplete="off"></label>
             <label>Přihlašovací jméno <input name="handle" required minlength="3" maxlength="30" autocomplete="username"></label>
-            <label>Heslo (alespoň 12 znaků) <input name="password" type="password" required minlength="12" maxlength="72" autocomplete="new-password"></label>
+            <label>Heslo <input name="password" type="password" required maxlength="72" autocomplete="new-password"></label>
             <button class="btn primary" name="action" value="activate">Aktivovat účet</button>
         </form>
     </details>

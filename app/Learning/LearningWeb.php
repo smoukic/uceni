@@ -425,8 +425,8 @@ final class LearningWeb
                 $register = $action === 'activate';
                 $id = null;
                 $code = trim($this->field('code'));
-                if (preg_match('/^[A-Za-z0-9_-]{3,30}$/D', $handle) && strlen($password) <= 72 && !str_contains($password, "\0")) {
-                    if ($register && strlen($password) >= 12 && preg_match('/^[a-f0-9]{32}$/Di', $code)) {
+                if (preg_match('/^[A-Za-z0-9_-]{3,30}$/D', $handle) && Accounts::validPassword($password)) {
+                    if ($register && preg_match('/^[a-f0-9]{32}$/Di', $code)) {
                         $id = $this->store->registerGuardian($handle, $password, $code);
                     } elseif (!$register) {
                         $id = $this->store->loginGuardian($handle, $password);

@@ -10,8 +10,8 @@
         <form class="stack" method="post" action="/rodic">
             <?php csrf() ?>
             <label>Současné heslo <input required name="current_password" type="password" maxlength="72" autocomplete="current-password"></label>
-            <label>Nové heslo <input required name="next_password" type="password" minlength="12" maxlength="72" autocomplete="new-password"></label>
-            <label>Zopakujte nové heslo <input required name="confirm_password" type="password" minlength="12" maxlength="72" autocomplete="new-password"></label>
+            <label>Nové heslo <input required name="next_password" type="password" maxlength="72" autocomplete="new-password"></label>
+            <label>Zopakujte nové heslo <input required name="confirm_password" type="password" maxlength="72" autocomplete="new-password"></label>
             <button class="btn primary" name="action" value="password">Uložit nové heslo</button>
         </form>
     </details>

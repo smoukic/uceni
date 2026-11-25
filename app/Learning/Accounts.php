@@ -74,7 +74,7 @@ final class Accounts
 
     public static function validPassword(string $password): bool
     {
-        return strlen($password) <= 72 && !str_contains($password, "\0") && mb_strlen($password) >= 8;
+        return strlen($password) <= 72 && !str_contains($password, "\0") && $password !== '';
     }
 
     private function epoch(int $player): int
